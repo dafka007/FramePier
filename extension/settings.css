@@ -1,0 +1,30 @@
+:root { color-scheme: dark; font-family: Inter, "Segoe UI", system-ui, sans-serif; background: #0a0f1c; color: #e8edf8; }
+* { box-sizing: border-box; }
+body { margin: 0; padding: 36px 20px; background: radial-gradient(circle at top, #172541, #090d18 55%); min-height: 100vh; }
+main { width: min(760px, 100%); margin: auto; }
+header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+header img { width: 52px; height: 52px; }
+h1, h2, p { margin-top: 0; }
+header h1 { margin-bottom: 4px; font-size: 24px; }
+header p, .legal { color: #8998b5; }
+section { margin-bottom: 18px; padding: 22px; border: 1px solid #263454; border-radius: 14px; background: rgba(17, 25, 44, .94); }
+h2 { font-size: 15px; }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+label { display: grid; gap: 7px; margin-bottom: 14px; color: #aebbd2; font-size: 12px; }
+input[type="text"], select { width: 100%; border: 1px solid #304163; border-radius: 9px; padding: 10px; color: #eef3ff; background: #121b30; }
+.path-row { display: flex; align-items: stretch; gap: 10px; }
+.path-row input { min-width: 0; flex: 1; }
+.path-row button { flex: 0 0 auto; white-space: nowrap; }
+.check { display: flex; align-items: center; gap: 8px; }
+button { border: 0; border-radius: 9px; padding: 9px 13px; color: #dae5f9; background: #263653; cursor: pointer; }
+button.primary { color: #07131c; background: linear-gradient(100deg, #1bd0e8, #5e96ff); font-weight: 700; }
+.section-title, .actions, dl div { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.section-title h2 { margin-bottom: 0; }
+dl { margin: 16px 0; }
+dl div { padding: 9px 0; border-bottom: 1px solid #222f4c; }
+dt { color: #95a4c0; }
+dd { margin: 0; max-width: 70%; text-align: right; overflow-wrap: anywhere; }
+.actions { justify-content: flex-start; flex-wrap: wrap; }
+.status { min-height: 18px; margin: 10px 0 0; color: #65d8b0; font-size: 12px; }
+.legal { padding: 0 4px; font-size: 11px; }
+@media (max-width: 600px) { .grid { grid-template-columns: 1fr; } .path-row { align-items: stretch; } }

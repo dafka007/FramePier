@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "VidDock",
+  "version": "0.2.2",
+  "description": "Local video downloads from your browser.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5h71jE0a7eti2jOINOdDz9oEjl/Vk15e7M2u8Hx+oAZNTm5etl7SZf1IxMYdj+73lsYPp7aWAKlVI8kf7ZtNSlh2PHw1SvpVQBHmgasE5kZC3PxBQ+3Lfv8XjUqALW5mHtdZ3QKx3RZazhK4dK5Ko0J55KEoC5QGLDpaYjX1ll9MJ3mC7Nsg317T8AWOrTyID958x/6VgQY+0AMQXsyJQvYYrU8IYz8Gif0FhEDpX8GiyUA78GFbRMlf0KRb3gP0AgN/RUf0+HxOZ2+9tyqrPVaARRLQIKA8VO/ic22MDsvJuvm7DADqCUHbAdfndSv80SGoDYK8UbypHUIq7W1n6QIDAQAB",
+  "permissions": [
+    "activeTab",
+    "alarms",
+    "nativeMessaging",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://youtube.com/*",
+    "https://www.youtube.com/*",
+    "https://m.youtube.com/*",
+    "https://music.youtube.com/*",
+    "https://youtu.be/*",
+    "https://twitch.tv/*",
+    "https://www.twitch.tv/*",
+    "https://m.twitch.tv/*",
+    "https://clips.twitch.tv/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "VidDock",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "options_page": "settings.html",
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; img-src 'self' https://i.ytimg.com https://*.ytimg.com https://static-cdn.jtvnw.net data:; connect-src 'none'; base-uri 'none'; frame-ancestors 'none'"
+  }
+}

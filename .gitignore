@@ -1,0 +1,35 @@
+# Build output and downloaded toolchains
+dist/
+.tools/
+helper/build/
+installer/Output/
+
+# Local settings, logs, downloaded media, and test artifacts
+*.log
+settings.json
+downloads/
+test-media/
+tmp/
+*.part
+*.ytdl
+
+# Secrets and signing material
+.env
+.env.*
+*.pem
+*.key
+*.pfx
+*.p12
+secrets.*
+
+# Go/editor/OS caches
+*.test
+coverage.out
+.vscode/
+.idea/
+*.user
+*.suo
+*.tmp
+Thumbs.db
+Desktop.ini
+.DS_Store

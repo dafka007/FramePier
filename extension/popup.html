@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VidDock</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand"><img src="icons/icon32.png" alt=""><span>VidDock</span></div>
+      <button id="settingsButton" class="icon-button" type="button" aria-label="Open settings">⚙</button>
+    </header>
+
+    <section id="loadingPanel" class="panel centered">
+      <div class="spinner" aria-hidden="true"></div>
+      <p id="loadingText">Connecting to helper…</p>
+    </section>
+
+    <section id="errorPanel" class="panel hidden" aria-live="polite">
+      <h1>VidDock isn’t ready</h1>
+      <p id="errorText"></p>
+      <button id="retryButton" class="secondary" type="button">Try again</button>
+    </section>
+
+    <section id="videoPanel" class="hidden">
+      <div class="video-card">
+        <img id="thumbnail" class="thumbnail" alt="Video thumbnail" referrerpolicy="no-referrer">
+        <div class="metadata">
+          <p id="sourceLabel" class="source-label"></p>
+          <h1 id="videoTitle"></h1>
+          <p><span id="channel"></span><span id="duration"></span></p>
+          <p id="currentUrl" class="url"></p>
+        </div>
+      </div>
+
+      <div class="mode-switch" role="group" aria-label="Download type">
+        <button id="videoMode" class="mode active" type="button">Video</button>
+        <button id="audioMode" class="mode" type="button">Audio</button>
+      </div>
+
+      <div id="videoOptions" class="options-grid">
+        <label>Quality<select id="quality"></select></label>
+        <label>Container<select id="container"><option value="mp4">MP4</option><option value="mkv">MKV</option></select></label>
+      </div>
+      <div id="audioOptions" class="options-grid hidden">
+        <label>Audio format<select id="audioFormat"><option value="best">Best audio</option><option value="m4a">M4A</option><option value="mp3">MP3</option></select></label>
+      </div>
+
+      <p id="estimateText" class="estimate"></p>
+
+      <button id="downloadButton" class="primary" type="button">Download</button>
+    </section>
+
+    <section id="progressPanel" class="panel hidden" aria-live="polite">
+      <div class="status-line"><strong id="statusText">Preparing…</strong><span id="percentText">0%</span></div>
+      <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
+      <div class="progress-meta"><span id="speedText"></span><span id="etaText"></span></div>
+      <p id="outputText" class="output"></p>
+      <button id="cancelButton" class="danger" type="button">Cancel</button>
+      <button id="openFolderButton" class="secondary hidden" type="button">Open download folder</button>
+      <p id="folderStatus" class="output" role="status"></p>
+      <button id="newDownloadButton" class="secondary hidden" type="button">Download another</button>
+    </section>
+
+    <footer>Only download media you have the right to save.</footer>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>

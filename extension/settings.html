@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VidDock Settings</title>
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+  <main>
+    <header><img src="icons/icon48.png" alt=""><div><h1>VidDock Settings</h1><p>Local video downloads from your browser.</p></div></header>
+    <section>
+      <h2>Download defaults</h2>
+      <div class="grid">
+        <label>Video quality<select id="defaultQuality"><option value="best">Best available</option><option value="2160">2160p (4K)</option><option value="1440">1440p</option><option value="1080">1080p</option><option value="720">720p</option><option value="480">480p</option><option value="360">360p</option></select></label>
+        <label>Video container<select id="defaultContainer"><option value="mp4">MP4</option><option value="mkv">MKV</option></select></label>
+        <label>Audio format<select id="defaultAudioFormat"><option value="best">Best audio</option><option value="m4a">M4A</option><option value="mp3">MP3</option></select></label>
+      </div>
+      <label>Download location<span class="path-row"><input id="downloadPath" type="text" maxlength="240" spellcheck="false" autocomplete="off"><button id="browseButton" type="button">Browse...</button></span></label>
+      <label class="check"><input id="autoOpen" type="checkbox"> Automatically open folder when complete</label>
+      <button id="saveButton" class="primary" type="button">Save settings</button>
+      <p id="saveStatus" class="status" aria-live="polite"></p>
+    </section>
+    <section>
+      <div class="section-title"><h2>System status</h2><button id="refreshButton" type="button">Refresh</button></div>
+      <dl>
+        <div><dt>Native Messaging</dt><dd id="nativeStatus">Checking…</dd></div>
+        <div><dt>Helper</dt><dd id="helperVersion">—</dd></div>
+        <div><dt>yt-dlp</dt><dd id="ytdlpVersion">—</dd></div>
+        <div><dt>ffmpeg</dt><dd id="ffmpegVersion">—</dd></div>
+        <div><dt>Extension</dt><dd id="extensionVersion">—</dd></div>
+        <div><dt>Browser</dt><dd id="browserName">Chromium</dd></div>
+      </dl>
+      <div class="actions"><button id="updateButton" type="button">Check/update yt-dlp</button><button id="openFolderButton" type="button">Open downloads</button><button id="openLogsButton" type="button">Open logs</button></div>
+    </section>
+    <p class="legal">VidDock does not bypass DRM or access controls. Download only media you own or are authorized to save.</p>
+  </main>
+  <script src="settings.js"></script>
+</body>
+</html>
