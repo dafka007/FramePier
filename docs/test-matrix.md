@@ -41,6 +41,24 @@ Browser installation scenarios:
 - Both: both point to the same restricted per-user host manifest.
 - Browser installed later: Start Menu **Repair Browser Integration** detects the new browser and recreates its VidDock key.
 
+### Chrome for Testing restoration
+
+Chrome for Testing 152.0.7977.75 (win64) is required for browser integration tests. If `.tools/browser-tests/chrome-for-testing/` is deleted or missing, restore it with:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/ensure-chrome-for-testing.ps1
+```
+
+The script:
+- Fetches the download URL from the official Chrome for Testing per-version JSON API (`https://googlechromelabs.github.io/chrome-for-testing/152.0.7977.75.json`).
+- Downloads `chrome-win64.zip` from `storage.googleapis.com/chrome-for-testing-public/`.
+- Extracts and installs to `.tools/browser-tests/chrome-for-testing/chrome-win64/chrome.exe`.
+- Verifies the installed version by reading the embedded `${Version}.manifest` file (version metadata contained in the downloaded package, no process needed), with `chrome.exe --version` as a fallback.
+- If an existing `chrome.exe` is present, the script verifies its version before returning. If the version cannot be confirmed, it fails clearly and does not overwrite the existing installation.
+- Cleans up temporary files on failure via `try/finally`.
+
+No SHA-256 checksum is published by Google for Chrome for Testing artifacts; the script relies on the official JSON API as the authoritative source and verifies the version from the embedded manifest file after extraction. The manifest is version metadata contained in the same downloaded package — it is not independent cryptographic integrity verification.
+
 Version 0.1.2 lifecycle scenarios:
 
 - Reproduced the 0.1.1 locked-helper failure first: the old installer retried `DeleteFile` four times and exited with Code 5 while the Native Messaging pipe remained open.
