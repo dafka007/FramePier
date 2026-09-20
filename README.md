@@ -24,13 +24,13 @@ The Windows installer includes the FramePier helper, a checksum-verified officia
 3. Select the installed browsers shown on the **Browser Integration** page. FramePier registers Native Messaging manifests for those browsers.
 4. After installation, load the FramePier extension manually using the instructions below.
 
-Administrator access is not normally required. If a browser is installed after FramePier, run **Repair Browser Integration** from the FramePier Start Menu folder. It detects newly installed browsers, repairs only FramePier's Native Messaging registrations, and reopens the local extension setup locations.
+Administrator access is not normally required. If a browser is installed after FramePier, run **Repair Browser Integration** from the FramePier Start Menu folder. It detects newly installed browsers and repairs FramePier's Native Messaging registrations.
 
 ### Windows browser installation restriction
 
 Chrome and Brave on Windows do not provide a supported consumer-profile API that lets an ordinary third-party installer permanently install a local, self-hosted extension with only an approval click. Chrome's documented external-extension registry mechanism requires a Chrome Web Store update URL on Windows; self-hosting is limited to managed enterprise environments. Chrome 137 and later also ignore `--load-extension` in branded Chrome builds. FramePier deliberately does not set enterprise force-install policy, alter browser security, or add persistent command-line launch flags.
 
-Consequently, the installer automates browser detection, Native Messaging, and setup-page opening, but **Developer mode → Load unpacked** remains the manual step for both Chrome and Brave until FramePier is published through an approved store. Normal updates keep that installed extension and its stable ID `kclnooibijmfenaldmpkffdbednfipkk`; Remove/Load unpacked is not repeated.
+Consequently, the installer automates browser detection and Native Messaging registration, but **Developer mode → Load unpacked** remains a manual step for Chrome, Brave, and Edge until FramePier is published through an approved store. Normal updates keep that installed extension and its stable ID `kclnooibijmfenaldmpkffdbednfipkk`; Remove/Load unpacked is not repeated.
 
 ## Load the extension (Chrome, Brave, or Edge)
 
