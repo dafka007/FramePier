@@ -19,10 +19,10 @@ The Windows installer includes the FramePier helper, a checksum-verified officia
 
 ## Install the helper
 
-1. Run the installer from the GitHub release. Setup closes existing FramePier helper processes automatically.
+1. Run `FramePier-Setup-0.2.2.exe`.
 2. Accept the default install location.
 3. Select the installed browsers shown on the **Browser Integration** page. FramePier registers Native Messaging manifests for those browsers.
-4. On the final page, optionally open browser setup. FramePier opens each selected browser's extensions page and the exact installed `Extension` folder.
+4. After installation, load the FramePier extension manually using the instructions below.
 
 Administrator access is not normally required. If a browser is installed after FramePier, run **Repair Browser Integration** from the FramePier Start Menu folder. It detects newly installed browsers, repairs only FramePier's Native Messaging registrations, and reopens the local extension setup locations.
 
