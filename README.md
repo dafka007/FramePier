@@ -19,7 +19,7 @@ The Windows installer includes the FramePier helper, a checksum-verified officia
 
 ## Install the helper
 
-1. Run `FramePier-Setup-0.2.2.exe`.
+1. Run FramePier-Setup-0.2.2.exe.
 2. Accept the default install location.
 3. Select the installed browsers shown on the **Browser Integration** page. FramePier registers Native Messaging manifests for those browsers.
 4. After installation, load the FramePier extension manually using the instructions below.
