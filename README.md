@@ -21,7 +21,7 @@ The release installer includes the FramePier helper, a checksum-verified officia
 
 ## Install the helper
 
-1. Run `FramePier-Setup-0.2.2.exe` from the `dist` folder. Setup closes existing FramePier helper processes automatically.
+1. Run `FramePier-Setup-0.2.2.exe`. Setup closes existing FramePier helper processes automatically.
 2. Accept the default per-user install location.
 3. Select the installed browsers shown on the **Browser Integration** page.
 4. On the final page, optionally open browser setup. FramePier opens each selected browser's extensions page and the exact installed `Extension` folder.
