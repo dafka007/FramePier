@@ -9,21 +9,19 @@ Version: **0.2.2**
 ## Support
 
 - Windows 10 and Windows 11 (x64)
-- Google Chrome
-- Brave Browser, including normal/default Shields
-- Microsoft Edge (secondary support)
-
-FramePier is designed for manual installation and is not affiliated with Twitch, YouTube, Google, Brave, or Microsoft.
+- Google Chrome 137 or newer
+- Brave Browser 1.60 or newer, including normal/default Shields
+- Microsoft Edge 137 or newer (secondary support)
 
 ## Requirements
 
-The release installer includes the FramePier helper, a checksum-verified official `yt-dlp` Windows release, and FFmpeg from the Windows build provider linked by the FFmpeg project. No Python or other runtime is required after installation.
+The Windows installer includes the FramePier helper, a checksum-verified official `yt-dlp` Windows release, and FFmpeg from the Windows build provider linked by the FFmpeg project. No Python or other runtime is required after installation.
 
 ## Install the helper
 
-1. Run `FramePier-Setup-0.2.2.exe`. Setup closes existing FramePier helper processes automatically.
-2. Accept the default per-user install location.
-3. Select the installed browsers shown on the **Browser Integration** page.
+1. Run the installer from the GitHub release. Setup closes existing FramePier helper processes automatically.
+2. Accept the default install location.
+3. Select the installed browsers shown on the **Browser Integration** page. FramePier registers Native Messaging manifests for those browsers.
 4. On the final page, optionally open browser setup. FramePier opens each selected browser's extensions page and the exact installed `Extension` folder.
 
 Administrator access is not normally required. If a browser is installed after FramePier, run **Repair Browser Integration** from the FramePier Start Menu folder. It detects newly installed browsers, repairs only FramePier's Native Messaging registrations, and reopens the local extension setup locations.
