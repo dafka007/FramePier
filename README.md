@@ -1,8 +1,8 @@
-# FramePier
+# FramePier — Browser Video Downloader for Windows
 
-Local video downloads from your browser.
+FramePier is an open-source Windows video downloader that works through a browser extension and local helper. It currently supports YouTube videos and public Twitch clips/VODs, with Chrome, Brave, and Edge supported today. Downloads are handled locally by `yt-dlp`, with FFmpeg used for merging or conversion.
 
-FramePier is a Windows-focused Chromium extension and local helper for saving media that you own, have permission to download, or are otherwise legally allowed to save. It supports YouTube videos plus public Twitch clips and completed public Twitch VODs. FramePier does not implement stream extraction in the browser: metadata and downloads are handled locally by `yt-dlp`, with FFmpeg used for merging or conversion.
+Use FramePier only for media you own, have permission to download, or are otherwise legally allowed to save.
 
 Version: **0.2.2**
 
