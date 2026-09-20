@@ -19,10 +19,6 @@ FramePier is designed for manual installation and is not affiliated with Twitch,
 
 The release installer includes the FramePier helper, a checksum-verified official `yt-dlp` Windows release, and FFmpeg from the Windows build provider linked by the FFmpeg project. No Python or other runtime is required after installation.
 
-## Screenshots
-
-Screenshots will be added after the v0.1 UI has completed browser acceptance testing.
-
 ## Install the helper
 
 1. Run `FramePier-Setup-0.2.2.exe` from the `dist` folder. Setup closes existing FramePier helper processes automatically.
@@ -36,25 +32,27 @@ Administrator access is not normally required. If a browser is installed after F
 
 Chrome and Brave on Windows do not provide a supported consumer-profile API that lets an ordinary third-party installer permanently install a local, self-hosted extension with only an approval click. Chrome's documented external-extension registry mechanism requires a Chrome Web Store update URL on Windows; self-hosting is limited to managed enterprise environments. Chrome 137 and later also ignore `--load-extension` in branded Chrome builds. FramePier deliberately does not set enterprise force-install policy, alter browser security, or add persistent command-line launch flags.
 
-Consequently, version 0.2.0 automates browser detection, Native Messaging, setup-page opening, and locating the installed extension, but **Developer mode → Load unpacked** remains the safe initial installation step for both Chrome and Brave until FramePier is published through an approved store. Normal updates keep that installed extension and its stable ID `kclnooibijmfenaldmpkffdbednfipkk`; Remove/Load unpacked is not repeated. A separately signed CRX cannot preserve this ID without the original corresponding private key, and local CRX installation is not a supported Chrome consumer flow on Windows in any event.
+Consequently, the installer automates browser detection, Native Messaging, and setup-page opening, but **Developer mode → Load unpacked** remains the manual step for both Chrome and Brave until FramePier is published through an approved store. Normal updates keep that installed extension and its stable ID `kclnooibijmfenaldmpkffdbednfipkk`; Remove/Load unpacked is not repeated.
 
-## Load the extension in Chrome
+## Load the extension (Chrome, Brave, or Edge)
 
-1. Open `chrome://extensions`.
-2. Turn on **Developer mode**.
-3. Select **Load unpacked**.
-4. Select `%LOCALAPPDATA%\Programs\FramePier\Extension` (or the repository's `extension` folder during development).
-5. Pin FramePier from Chrome's Extensions menu if desired.
+This is a sideloaded, unpacked extension. It is not installed from the Chrome Web Store. Do not move or delete the extension folder after loading it.
+
+1. Install FramePier first (run the setup installer).
+2. Open your browser's extensions page:
+   - Chrome: `chrome://extensions`
+   - Brave: `brave://extensions`
+   - Edge: `edge://extensions`
+3. Turn on **Developer mode** (toggle in the top-right corner).
+4. Click **Load unpacked**.
+5. Select `%LOCALAPPDATA%\Programs\FramePier\Extension` — the folder that contains `manifest.json`.
+6. Confirm the extension appears as **FramePier** in the extension list.
+7. Open the FramePier **Settings** page (gear icon in the popup).
+8. Confirm **Native Messaging: Connected** is shown.
+
+The GitHub release also includes `FramePier-extension-0.2.2.zip`. You can extract that ZIP to a permanent folder and use **Load unpacked** on the extracted folder containing `manifest.json` instead of the installed path.
 
 The checked-in manifest public key keeps the unpacked extension ID stable: `kclnooibijmfenaldmpkffdbednfipkk`. The Native Messaging manifest accepts only that extension origin.
-
-## Load the extension in Brave
-
-1. Open `brave://extensions`.
-2. Turn on **Developer mode**.
-3. Select **Load unpacked**.
-4. Select `%LOCALAPPDATA%\Programs\FramePier\Extension` (or the repository's `extension` folder during development).
-5. Pin FramePier from Brave's Extensions menu if desired.
 
 Brave Shields can remain enabled. FramePier uses the active tab URL and the local helper; it does not scrape the page or inject a content script.
 
