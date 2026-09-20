@@ -172,7 +172,7 @@ func stopInstalledHelpers(target string) error {
 		_ = terminateHelperAtPath(pid, target)
 	}
 	if !waitForPathProcesses(target, 10*time.Second) {
-		return errors.New("VidDockHelper.exe did not exit after graceful and forced shutdown")
+		return errors.New("FramePierHelper.exe did not exit after graceful and forced shutdown")
 	}
 	cleanupStaleRuntimeStates(target)
 	if !otherHelperInstallationRunning(target) {
@@ -255,7 +255,7 @@ func otherHelperInstallationRunning(target string) bool {
 		return true
 	}
 	for {
-		if entry.ProcessID != uint32(os.Getpid()) && strings.EqualFold(syscall.UTF16ToString(entry.ExeFile[:]), "VidDockHelper.exe") {
+		if entry.ProcessID != uint32(os.Getpid()) && strings.EqualFold(syscall.UTF16ToString(entry.ExeFile[:]), "FramePierHelper.exe") {
 			image, ok := processImagePath(entry.ProcessID)
 			if !ok || !strings.EqualFold(filepath.Clean(image), target) {
 				return true
@@ -282,13 +282,13 @@ func waitForPathProcesses(target string, timeout time.Duration) bool {
 }
 
 func validateLifecycleTarget(target string) (string, error) {
-	if !filepath.IsAbs(target) || strings.HasPrefix(target, `\\`) || !strings.EqualFold(filepath.Base(target), "VidDockHelper.exe") {
-		return "", errors.New("invalid VidDock lifecycle target")
+	if !filepath.IsAbs(target) || strings.HasPrefix(target, `\\`) || !strings.EqualFold(filepath.Base(target), "FramePierHelper.exe") {
+		return "", errors.New("invalid FramePier lifecycle target")
 	}
 	target = filepath.Clean(target)
 	parent := filepath.Dir(target)
 	if parent == filepath.VolumeName(parent)+`\` || hasReparsePoint(parent) {
-		return "", errors.New("unsafe VidDock lifecycle target")
+		return "", errors.New("unsafe FramePier lifecycle target")
 	}
 	return target, nil
 }

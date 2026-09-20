@@ -66,7 +66,7 @@ func TestFolderPickerOwnerExecutableAllowlist(t *testing.T) {
 			t.Fatalf("supported browser executable rejected: %s", name)
 		}
 	}
-	for _, name := range []string{"explorer.exe", "Code.exe", "VidDockHelper.exe"} {
+	for _, name := range []string{"explorer.exe", "Code.exe", "FramePierHelper.exe"} {
 		if validChromiumExecutable(name) {
 			t.Fatalf("unrelated owner executable accepted: %s", name)
 		}

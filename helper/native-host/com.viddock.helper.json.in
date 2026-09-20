@@ -1,7 +1,7 @@
 {
   "name": "com.viddock.helper",
-  "description": "VidDock local video download helper",
-  "path": "{APP}\\VidDockHelper.exe",
+  "description": "FramePier local video download helper",
+  "path": "{APP}\\FramePierHelper.exe",
   "type": "stdio",
   "allowed_origins": [
     "chrome-extension://kclnooibijmfenaldmpkffdbednfipkk/"

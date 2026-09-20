@@ -10,7 +10,7 @@ el.browseButton.addEventListener("click", chooseDownloadFolder);
 el.openFolderButton.addEventListener("click", () => openFolder("open_download_folder", el.openFolderButton));
 el.openLogsButton.addEventListener("click", () => openFolder("open_logs_folder", el.openLogsButton));
 chrome.runtime.onMessage.addListener((message) => {
-  if (message?.type === "update_status") setStatus(message.message || "VidDock was updated. Reloading…");
+  if (message?.type === "update_status") setStatus(message.message || "FramePier was updated. Reloading…");
 });
 
 async function initialize() {
@@ -72,8 +72,8 @@ async function openFolder(command, button) {
     await native(command);
     setStatus("");
   } catch (error) {
-    console.error(`VidDock ${command} failed`, error.message);
-    setStatus(error.message || "VidDock couldn't open the folder.", true);
+    console.error(`FramePier ${command} failed`, error.message);
+    setStatus(error.message || "FramePier couldn't open the folder.", true);
   } finally {
     button.disabled = false;
   }
@@ -126,6 +126,6 @@ function shortFFmpegVersion(value = "") {
 
 async function native(command, payload = {}) {
   const response = await chrome.runtime.sendMessage({ type: "native", command, payload });
-  if (!response?.ok) throw new Error(response?.error || "VidDock request failed.");
+  if (!response?.ok) throw new Error(response?.error || "FramePier request failed.");
   return response;
 }

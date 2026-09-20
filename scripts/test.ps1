@@ -69,7 +69,7 @@ foreach ($file in $allSource) {
     }
 }
 
-$helper = Join-Path $projectRoot 'dist\helper\VidDockHelper.exe'
+$helper = Join-Path $projectRoot 'dist\helper\FramePierHelper.exe'
 if (Test-Path -LiteralPath $helper) {
     $start = New-Object System.Diagnostics.ProcessStartInfo
     $start.FileName = $helper
@@ -114,6 +114,6 @@ if (Test-Path -LiteralPath $helper) {
     }
 }
 
-Write-Host 'All VidDock automated tests passed.'
+Write-Host 'All FramePier automated tests passed.'
 & node --test (Join-Path $projectRoot 'scripts\folder-ui.test.mjs') (Join-Path $projectRoot 'scripts\background.test.mjs')
 if ($LASTEXITCODE -ne 0) { throw 'Extension regression tests failed.' }

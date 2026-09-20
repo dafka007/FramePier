@@ -17,21 +17,22 @@ var (
 )
 
 type mediaFormat struct {
-	ID          string  `json:"format_id"`
-	Ext         string  `json:"ext"`
-	VideoExt    string  `json:"video_ext"`
-	AudioExt    string  `json:"audio_ext"`
-	Width       int     `json:"width"`
-	Height      int     `json:"height"`
-	AspectRatio float64 `json:"aspect_ratio"`
-	FormatNote  string  `json:"format_note"`
-	VCodec      string  `json:"vcodec"`
-	ACodec      string  `json:"acodec"`
-	Protocol    string  `json:"protocol"`
-	FPS         float64 `json:"fps"`
-	TBR         float64 `json:"tbr"`
-	Filesize    int64   `json:"filesize"`
-	ApproxSize  int64   `json:"filesize_approx"`
+	ID                 string  `json:"format_id"`
+	Ext                string  `json:"ext"`
+	VideoExt           string  `json:"video_ext"`
+	AudioExt           string  `json:"audio_ext"`
+	Width              int     `json:"width"`
+	Height             int     `json:"height"`
+	AspectRatio        float64 `json:"aspect_ratio"`
+	FormatNote         string  `json:"format_note"`
+	VCodec             string  `json:"vcodec"`
+	ACodec             string  `json:"acodec"`
+	Protocol           string  `json:"protocol"`
+	FPS                float64 `json:"fps"`
+	TBR                float64 `json:"tbr"`
+	Filesize           int64   `json:"filesize"`
+	ApproxSize         int64   `json:"filesize_approx"`
+	LanguagePreference int     `json:"language_preference"`
 }
 
 type videoMetadata struct {
@@ -316,7 +317,7 @@ func selectVideoFormatByResolutionAndFPS(formats []mediaFormat, width, height, f
 	return candidates[0], nil
 }
 
-func selectAudioFormat(formats []mediaFormat, container string) (mediaFormat, error) {
+func selectAudioFormat(formats []mediaFormat, container string, source mediaSource) (mediaFormat, error) {
 	candidates := make([]mediaFormat, 0)
 	for _, format := range formats {
 		codec := strings.ToLower(format.ACodec)
@@ -333,6 +334,22 @@ func selectAudioFormat(formats []mediaFormat, container string) (mediaFormat, er
 			return mediaFormat{}, errors.New("compatible AAC/M4A audio is unavailable; choose MKV for this video")
 		}
 		return mediaFormat{}, errors.New("no usable audio stream is available for this video")
+	}
+	// YouTube-specific: prefer original-language audio tracks.
+	// yt-dlp assigns language_preference == 10 to the original track and
+	// negative values to AI dubs. Only restrict to == 10 when at least one
+	// such candidate exists; otherwise preserve the old TBR→ID ordering.
+	// This rule is YouTube-only; Twitch VODs must keep the old TBR→ID ordering.
+	if source == sourceYouTube {
+		originals := make([]mediaFormat, 0)
+		for _, format := range candidates {
+			if format.LanguagePreference == 10 {
+				originals = append(originals, format)
+			}
+		}
+		if len(originals) > 0 {
+			candidates = originals
+		}
 	}
 	sort.SliceStable(candidates, func(i, j int) bool {
 		if candidates[i].TBR != candidates[j].TBR {

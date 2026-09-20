@@ -42,7 +42,7 @@ function connectNative() {
 function handleNativeMessage(message) {
   if (!message || typeof message !== "object" || (message.event !== "progress" && typeof message.id !== "string")) {
     logNativeError("response", "Native host returned an invalid response frame.");
-    rejectPending("VidDock helper returned an invalid response.");
+    rejectPending("FramePier helper returned an invalid response.");
     return;
   }
 
@@ -67,7 +67,7 @@ function handleNativeMessage(message) {
       item.resolve(message);
     }
   }
-  else item.reject(new Error(message.error || "The VidDock helper rejected the request."));
+  else item.reject(new Error(message.error || "The FramePier helper rejected the request."));
 }
 
 function nativeRequest(command, payload = {}, requestedId = null) {
@@ -80,7 +80,7 @@ function nativeRequest(command, payload = {}, requestedId = null) {
     const timer = setTimeout(() => {
       pending.delete(id);
       logNativeError("timeout", `No response for command ${command}.`);
-      reject(new Error("VidDock helper started but did not return a valid response in time."));
+      reject(new Error("FramePier helper started but did not return a valid response in time."));
     }, timeout);
     pending.set(id, { resolve, reject, timer });
     try {
@@ -99,21 +99,21 @@ function friendlyNativeError(message = "", stage = "connect") {
     return "Native host not found. Run Repair Browser Integration, then restart this browser if it was open during an upgrade.";
   }
   if (/manifest.*(missing|invalid|read)|failed to read.*manifest/i.test(message)) {
-    return "VidDock's Native Messaging manifest is missing or invalid. Run Repair Browser Integration.";
+    return "FramePier's Native Messaging manifest is missing or invalid. Run Repair Browser Integration.";
   }
   if (/access.*forbidden|not allowed/i.test(message)) {
-    return "This VidDock extension origin is not allowed by the installed Native Messaging host.";
+    return "This FramePier extension origin is not allowed by the installed Native Messaging host.";
   }
   if (/failed to start|could not start|cannot start/i.test(message)) {
-    return "The VidDock native host was found but its helper executable could not start.";
+    return "The FramePier native host was found but its helper executable could not start.";
   }
   if (/host.*exited|pipe.*closed|native messaging.*closed/i.test(message) || stage === "disconnect") {
-    return "The VidDock helper communication pipe closed. Retry once; if it repeats, run Repair Browser Integration.";
+    return "The FramePier helper communication pipe closed. Retry once; if it repeats, run Repair Browser Integration.";
   }
   if (/invalid|communicat/i.test(message)) {
-    return "The VidDock helper returned an invalid response.";
+    return "The FramePier helper returned an invalid response.";
   }
-  return "Could not connect to the VidDock helper.";
+  return "Could not connect to the FramePier helper.";
 }
 
 function rejectPending(message) {
@@ -126,7 +126,7 @@ function rejectPending(message) {
 
 function logNativeError(stage, rawMessage = "") {
   const entry = { timestamp: new Date().toISOString(), stage, message: String(rawMessage).slice(0, 1000) };
-  console.error("VidDock Native Messaging error", entry);
+  console.error("FramePier Native Messaging error", entry);
   chrome.storage.local.get({ nativeDiagnostics: [] }).then(({ nativeDiagnostics }) => {
     const entries = Array.isArray(nativeDiagnostics) ? nativeDiagnostics.slice(-19) : [];
     entries.push(entry);
@@ -170,12 +170,12 @@ async function checkInstalledVersion(packageVersion) {
   const { extensionReloadGuard } = await chrome.storage.local.get({ extensionReloadGuard: null });
   if (extensionReloadGuard?.target === packageVersion && extensionReloadGuard?.active === ACTIVE_VERSION) {
     void recordUpdateEvent("reload_guarded", ACTIVE_VERSION, packageVersion);
-    await setUpdateStatus(`VidDock ${packageVersion} is installed. Completely exit and reopen ${browserLabel()} to activate it.`);
+    await setUpdateStatus(`FramePier ${packageVersion} is installed. Completely exit and reopen ${browserLabel()} to activate it.`);
     return false;
   }
   await recordUpdateEvent("mismatch_detected", ACTIVE_VERSION, packageVersion);
   await chrome.storage.local.set({ extensionReloadGuard: { active: ACTIVE_VERSION, target: packageVersion, at: now } });
-  await setUpdateStatus("VidDock was updated. Reloading…");
+  await setUpdateStatus("FramePier was updated. Reloading…");
   await recordUpdateEvent("reload_requested", ACTIVE_VERSION, packageVersion);
   setTimeout(() => chrome.runtime.reload(), 250);
   return true;

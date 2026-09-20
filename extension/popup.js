@@ -20,7 +20,7 @@ elements.settingsButton.addEventListener("click", () => chrome.runtime.sendMessa
 chrome.runtime.onMessage.addListener((message) => {
   if (message.type === "progress" && message.job?.id === jobId) renderProgress(message.job);
   if (message.type === "update_status") {
-    elements.loadingText.textContent = message.message || "VidDock was updated. Reloading…";
+    elements.loadingText.textContent = message.message || "FramePier was updated. Reloading…";
     show("loadingPanel");
   }
 });
@@ -153,8 +153,8 @@ async function openDownloadFolder() {
     await native("open_download_folder");
     elements.folderStatus.textContent = "";
   } catch (error) {
-    console.error("VidDock open_download_folder failed", error.message);
-    elements.folderStatus.textContent = error.message || "VidDock couldn't open the download folder.";
+    console.error("FramePier open_download_folder failed", error.message);
+    elements.folderStatus.textContent = error.message || "FramePier couldn't open the download folder.";
   } finally {
     elements.openFolderButton.disabled = false;
   }
@@ -184,7 +184,7 @@ function renderProgress(job) {
 function parseMediaUrl(value) {
   try {
     const url = new URL(value);
-    if (url.protocol !== "https:") throw new Error("Open a supported YouTube video or public Twitch clip/VOD, then click VidDock again.");
+    if (url.protocol !== "https:") throw new Error("Open a supported YouTube video or public Twitch clip/VOD, then click FramePier again.");
     const host = url.hostname.toLowerCase();
     let videoId = "";
     if (host === "youtu.be") videoId = url.pathname.split("/").filter(Boolean)[0] || "";
@@ -213,10 +213,10 @@ function parseMediaUrl(value) {
       }
       throw new Error("This Twitch page is not a supported clip or VOD.");
     }
-    throw new Error("Open a supported YouTube video or public Twitch clip/VOD, then click VidDock again.");
+    throw new Error("Open a supported YouTube video or public Twitch clip/VOD, then click FramePier again.");
   } catch (error) {
     if (error instanceof Error && /Twitch|supported YouTube/.test(error.message)) throw error;
-    throw new Error("Open a supported YouTube video or public Twitch clip/VOD, then click VidDock again.");
+    throw new Error("Open a supported YouTube video or public Twitch clip/VOD, then click FramePier again.");
   }
 }
 
@@ -270,6 +270,6 @@ function fileName(path) { return path.split(/[\\/]/).pop() || path; }
 
 async function native(command, payload = {}, id = null) {
   const response = await chrome.runtime.sendMessage({ type: "native", command, payload, id });
-  if (!response?.ok) throw new Error(response?.error || "VidDock request failed.");
+  if (!response?.ok) throw new Error(response?.error || "FramePier request failed.");
   return response;
 }

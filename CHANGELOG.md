@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to VidDock are documented here. Versions follow Semantic Versioning.
+All notable changes to FramePier are documented here. Versions follow Semantic Versioning.
 
 ## [0.2.2] - 2026-09-05
 
@@ -63,12 +63,12 @@ All notable changes to VidDock are documented here. Versions follow Semantic Ver
 
 ### Added
 
-- Added a native Browse button for selecting the VidDock download folder through the Windows folder picker.
+- Added a native Browse button for selecting the FramePier download folder through the Windows folder picker.
 
 ### Changed
 
-- Download locations are validated for creation and write access and continue to persist through browser restarts, helper restarts, and VidDock upgrades.
-- Added a guarded installed-package version handshake so VidDock 0.1.5 and later can activate future unpacked-extension updates with Chromium's supported reload API.
+- Download locations are validated for creation and write access and continue to persist through browser restarts, helper restarts, and FramePier upgrades.
+- Added a guarded installed-package version handshake so FramePier 0.1.5 and later can activate future unpacked-extension updates with Chromium's supported reload API.
 - Added clear restart guidance for the one-time upgrade from older builds that do not yet contain the reload detector.
 - Shortened the FFmpeg status display while retaining the full build string in helper logs.
 
@@ -77,7 +77,7 @@ All notable changes to VidDock are documented here. Versions follow Semantic Ver
 ### Fixed
 
 - Fixed quality labels for ultrawide, vertical, square, and other non-standard video resolutions.
-- VidDock now displays actual source dimensions when a video does not match a standard landscape 16:9 resolution.
+- FramePier now displays actual source dimensions when a video does not match a standard landscape 16:9 resolution.
 - Resolution choices are deduplicated by width and height, and explicit selections resolve to that exact source size.
 
 ## [0.1.3] - 2026-09-04
@@ -94,10 +94,10 @@ All notable changes to VidDock are documented here. Versions follow Semantic Ver
 
 ### Fixed
 
-- Fixed upgrades failing when `VidDockHelper.exe` was still running.
-- The installer now suspends Native Messaging launches and safely stops VidDock background processes before updating or uninstalling.
-- Active VidDock downloads and merges are detected before interactive upgrades; continuing cancels them and removes only VidDock's private temporary fragments.
-- Added Windows Job Object ownership for downloader process trees so helper shutdowns and crashes do not leave VidDock-owned yt-dlp or ffmpeg processes behind.
+- Fixed upgrades failing when `FramePierHelper.exe` was still running.
+- The installer now suspends Native Messaging launches and safely stops FramePier background processes before updating or uninstalling.
+- Active FramePier downloads and merges are detected before interactive upgrades; continuing cancels them and removes only FramePier's private temporary fragments.
+- Added Windows Job Object ownership for downloader process trees so helper shutdowns and crashes do not leave FramePier-owned yt-dlp or ffmpeg processes behind.
 - Reviewed upgrade, uninstall, repair, cancellation, rollback, and concurrent-installer paths for file-lock and process-lifecycle issues.
 
 ## [0.1.1] - 2026-09-04
@@ -114,7 +114,7 @@ All notable changes to VidDock are documented here. Versions follow Semantic Ver
 ### Changed
 
 - The installer now detects Chrome, Brave, and Edge, lets the user choose detected browsers, reports per-browser integration status, and can open the correct extension pages plus the installed extension folder.
-- Added a Start Menu **Repair Browser Integration** action that detects browsers installed later and restores VidDock's restricted Native Messaging registrations.
+- Added a Start Menu **Repair Browser Integration** action that detects browsers installed later and restores FramePier's restricted Native Messaging registrations.
 - Documented the Windows browser restriction that prevents supported permanent local CRX installation in ordinary Chrome/Brave profiles without store publication or managed enterprise policy.
 
 ## [0.1.0] - 2026-09-04

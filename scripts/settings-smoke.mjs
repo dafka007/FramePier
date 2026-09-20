@@ -5,7 +5,7 @@ import path from "node:path";
 const helper = process.argv[2];
 const replacement = process.argv[3] || "";
 if (!helper) {
-  console.error("Usage: node settings-smoke.mjs <VidDockHelper.exe> [replacement-folder]");
+  console.error("Usage: node settings-smoke.mjs <FramePierHelper.exe> [replacement-folder]");
   process.exit(2);
 }
 

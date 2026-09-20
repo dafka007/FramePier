@@ -13,7 +13,7 @@ while (Date.now() < deadline) {
   await new Promise(resolve => setTimeout(resolve, 200));
 }
 const target = targets?.find(item => item.url?.startsWith(`chrome-extension://${extensionId}/`));
-if (!target) throw new Error("VidDock extension target was not found");
+if (!target) throw new Error("FramePier extension target was not found");
 const socket = new WebSocket(target.webSocketDebuggerUrl);
 await new Promise((resolve, reject) => { socket.addEventListener("open", resolve, { once: true }); socket.addEventListener("error", reject, { once: true }); });
 let nextId = 1;

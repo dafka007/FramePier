@@ -96,7 +96,7 @@ func TestTwitchMetadataIdentity(t *testing.T) {
 }
 
 func TestVerifyOutputRejectsTraversal(t *testing.T) {
-	if _, err := verifyOutput(`C:\Users\Example\Downloads\VidDock`, `C:\Windows\System32\calc.exe`); err == nil {
+	if _, err := verifyOutput(`C:\Users\Example\Downloads\FramePier`, `C:\Windows\System32\calc.exe`); err == nil {
 		t.Fatal("escaped output path was accepted")
 	}
 }

@@ -1,17 +1,17 @@
 param(
-    [string]$InstallRoot = "$env:LOCALAPPDATA\Programs\VidDock",
+    [string]$InstallRoot = "$env:LOCALAPPDATA\Programs\FramePier",
     [switch]$Unregister
 )
 
 $ErrorActionPreference = 'Stop'
-$helper = Join-Path $InstallRoot 'VidDockHelper.exe'
+$helper = Join-Path $InstallRoot 'FramePierHelper.exe'
 if (-not (Test-Path -LiteralPath $helper -PathType Leaf)) {
-    throw "VidDockHelper.exe was not found at $helper"
+    throw "FramePierHelper.exe was not found at $helper"
 }
 
 $argument = if ($Unregister) { '--unregister' } else { '--register' }
 & $helper $argument
 if ($LASTEXITCODE -ne 0) {
-    throw "VidDock browser registration failed with exit code $LASTEXITCODE"
+    throw "FramePier browser registration failed with exit code $LASTEXITCODE"
 }
-Write-Host 'VidDock browser registration completed.'
+Write-Host 'FramePier browser registration completed.'

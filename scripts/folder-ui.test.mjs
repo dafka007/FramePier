@@ -40,7 +40,7 @@ for (const source of ['YouTube','Twitch clip','Twitch VOD','MP3','M4A']) {
 
 test('folder failure is visible, preserves completion, and the button can retry', async () => {
   let fail = true;
-  const {nodes,context} = popupHarness(async () => fail ? {ok:false,error:"VidDock couldn't open the download folder."} : {ok:true});
+  const {nodes,context} = popupHarness(async () => fail ? {ok:false,error:"FramePier couldn't open the download folder."} : {ok:true});
   vm.runInContext(`renderProgress({state:'finished',percent:100,outputPath:'C:/downloads/clip.mp4'})`, context);
   await nodes.openFolderButton.handlers.click();
   assert.match(nodes.folderStatus.textContent, /couldn't open/);

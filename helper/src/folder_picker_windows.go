@@ -111,7 +111,7 @@ func showFolderDialog(currentPath string, owner uintptr) (string, bool, error) {
 	if hr, _, _ = syscall.SyscallN(dialog.VTable[fileDialogSetOptions], uintptr(unsafe.Pointer(dialog)), options); failedHRESULT(hr) {
 		return "", false, fmt.Errorf("IFileDialog.SetOptions failed: 0x%08X", uint32(hr))
 	}
-	title, _ := syscall.UTF16PtrFromString("Choose VidDock download folder")
+	title, _ := syscall.UTF16PtrFromString("Choose FramePier download folder")
 	if hr, _, _ = syscall.SyscallN(dialog.VTable[fileDialogSetTitle], uintptr(unsafe.Pointer(dialog)), uintptr(unsafe.Pointer(title))); failedHRESULT(hr) {
 		return "", false, fmt.Errorf("IFileDialog.SetTitle failed: 0x%08X", uint32(hr))
 	}

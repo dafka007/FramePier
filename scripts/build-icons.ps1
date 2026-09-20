@@ -41,7 +41,7 @@ try {
         }
     }
 
-    $icoPath = Join-Path $assetsDir 'VidDock.ico'
+    $icoPath = Join-Path $assetsDir 'FramePier.ico'
     $stream = [System.IO.File]::Create($icoPath)
     $writer = New-Object System.IO.BinaryWriter($stream)
     try {
@@ -70,4 +70,4 @@ try {
     $sourceImage.Dispose()
 }
 
-Write-Host "Created VidDock icons in $extensionIcons and $assetsDir"
+Write-Host "Created FramePier icons in $extensionIcons and $assetsDir"

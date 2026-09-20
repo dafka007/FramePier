@@ -8,11 +8,11 @@ import (
 )
 
 func TestNativeHostManifestRoundTripWithSpaces(t *testing.T) {
-	root := filepath.Join(t.TempDir(), "VidDock Test Install")
+	root := filepath.Join(t.TempDir(), "FramePier Test Install")
 	if err := os.MkdirAll(root, 0700); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(root, "VidDockHelper.exe"), []byte("test"), 0600); err != nil {
+	if err := os.WriteFile(filepath.Join(root, "FramePierHelper.exe"), []byte("test"), 0600); err != nil {
 		t.Fatal(err)
 	}
 	if err := writeNativeHostManifest(root); err != nil {
@@ -29,14 +29,14 @@ func TestNativeHostManifestRoundTripWithSpaces(t *testing.T) {
 	if err := json.Unmarshal(data, &manifest); err != nil {
 		t.Fatal(err)
 	}
-	if manifest.Name != nativeHostName || manifest.Path != filepath.Join(root, "VidDockHelper.exe") || len(manifest.AllowedOrigins) != 1 || manifest.AllowedOrigins[0] != extensionOrigin {
+	if manifest.Name != nativeHostName || manifest.Path != filepath.Join(root, "FramePierHelper.exe") || len(manifest.AllowedOrigins) != 1 || manifest.AllowedOrigins[0] != extensionOrigin {
 		t.Fatalf("unexpected manifest: %#v", manifest)
 	}
 }
 
 func TestManifestRepairCorrectsWrongPathAndOrigin(t *testing.T) {
 	root := t.TempDir()
-	if err := os.WriteFile(filepath.Join(root, "VidDockHelper.exe"), []byte("test"), 0600); err != nil {
+	if err := os.WriteFile(filepath.Join(root, "FramePierHelper.exe"), []byte("test"), 0600); err != nil {
 		t.Fatal(err)
 	}
 	if err := os.MkdirAll(filepath.Dir(manifestPath(root)), 0700); err != nil {

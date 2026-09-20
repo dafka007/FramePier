@@ -55,8 +55,8 @@ try {
     & $goExe test ./...
     if ($LASTEXITCODE -ne 0) { throw 'Go tests failed.' }
     $env:CGO_ENABLED = '0'
-    & $goExe build -trimpath -ldflags '-s -w -H=windowsgui' -o (Join-Path $helperDist 'VidDockHelper.exe') ./src
-    if ($LASTEXITCODE -ne 0) { throw 'VidDock helper build failed.' }
+    & $goExe build -trimpath -ldflags '-s -w -H=windowsgui' -o (Join-Path $helperDist 'FramePierHelper.exe') ./src
+    if ($LASTEXITCODE -ne 0) { throw 'FramePier helper build failed.' }
 } finally {
     Pop-Location
 }
@@ -87,7 +87,7 @@ if (-not $SkipDownloads) {
 }
 
 $packageVersion = (Get-Content -Raw -LiteralPath (Join-Path $projectRoot 'extension\manifest.json') | ConvertFrom-Json).version
-$extensionZip = Join-Path $distRoot "VidDock-extension-$packageVersion.zip"
+$extensionZip = Join-Path $distRoot "FramePier-extension-$packageVersion.zip"
 if (Test-Path -LiteralPath $extensionZip) { Remove-Item -LiteralPath $extensionZip -Force }
 Compress-Archive -Path (Join-Path $projectRoot 'extension\*') -DestinationPath $extensionZip -CompressionLevel Optimal
 
@@ -96,8 +96,8 @@ if (-not $SkipInstaller) {
     if (-not $iscc) {
         throw 'Inno Setup 6 is required to build the installer. Install JRSoftware.InnoSetup with winget, then rerun this script.'
     }
-    & $iscc (Join-Path $projectRoot 'installer\VidDock.iss')
+    & $iscc (Join-Path $projectRoot 'installer\FramePier.iss')
     if ($LASTEXITCODE -ne 0) { throw 'Inno Setup compilation failed.' }
 }
 
-Write-Host "VidDock build completed: $distRoot"
+Write-Host "FramePier build completed: $distRoot"

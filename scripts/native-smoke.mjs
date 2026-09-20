@@ -9,7 +9,7 @@ const helper = process.argv[2];
 const action = process.argv[3] || "info";
 const requestedMedia = process.argv[4] || "aqz-KE-bpKQ";
 if (!helper) {
-  console.error("Usage: node native-smoke.mjs <VidDockHelper.exe> [info|download|download_mkv|m4a|mp3|cancel] [videoId-or-supported-URL] [quality]");
+  console.error("Usage: node native-smoke.mjs <FramePierHelper.exe> [info|download|download_mkv|m4a|mp3|cancel] [videoId-or-supported-URL] [quality]");
   process.exit(2);
 }
 

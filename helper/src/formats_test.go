@@ -104,6 +104,147 @@ func TestAvailableQualitiesDoesNotMergeSameWidthDifferentHeights(t *testing.T) {
 	}
 }
 
+func TestSelectAudioFormatPrefersOriginalOverAIDub(t *testing.T) {
+	// Reproduces the AI-dub regression: English original (140-17) vs Arabic dub (140-0)
+	// The Arabic dub had marginally higher TBR (129.477 vs 129.476), causing it to be
+	// selected under the old TBR-only sort. The fix must prefer the original.
+	formats := []mediaFormat{
+		{ID: "140-0", VCodec: "none", ACodec: "mp4a.40.2", Ext: "m4a", Protocol: "https",
+			TBR: 129.477, FormatNote: "Arabic, medium", LanguagePreference: -1},
+		{ID: "140-17", VCodec: "none", ACodec: "mp4a.40.2", Ext: "m4a", Protocol: "https",
+			TBR: 129.476, FormatNote: "English (US) original (default), medium", LanguagePreference: 10},
+	}
+	got, err := selectAudioFormat(formats, "mp4", sourceYouTube)
+	if err != nil {
+		t.Fatalf("selectAudioFormat() error: %v", err)
+	}
+	if got.ID != "140-17" {
+		t.Fatalf("selectAudioFormat() = %q, want %q (English original)", got.ID, "140-17")
+	}
+}
+
+func TestSelectAudioFormatPrefersOriginalLanguageOverEnglishDub(t *testing.T) {
+	// Japanese original vs English AI dub. The English dub has higher TBR,
+	// but the Japanese original must be selected.
+	formats := []mediaFormat{
+		{ID: "140-0", VCodec: "none", ACodec: "mp4a.40.2", Ext: "m4a", Protocol: "https",
+			TBR: 130.5, FormatNote: "English, medium", LanguagePreference: -1},
+		{ID: "140-5", VCodec: "none", ACodec: "mp4a.40.2", Ext: "m4a", Protocol: "https",
+			TBR: 128.2, FormatNote: "Japanese (JP) original (default), medium", LanguagePreference: 10},
+	}
+	got, err := selectAudioFormat(formats, "mp4", sourceYouTube)
+	if err != nil {
+		t.Fatalf("selectAudioFormat() error: %v", err)
+	}
+	if got.ID != "140-5" {
+		t.Fatalf("selectAudioFormat() = %q, want %q (Japanese original)", got.ID, "140-5")
+	}
+}
+
+func TestSelectAudioFormatSingleAudioUnchanged(t *testing.T) {
+	// Single audio track — behavior must remain unchanged.
+	formats := []mediaFormat{
+		{ID: "140", VCodec: "none", ACodec: "mp4a.40.2", Ext: "m4a", Protocol: "https", TBR: 129},
+	}
+	got, err := selectAudioFormat(formats, "mp4", sourceYouTube)
+	if err != nil {
+		t.Fatalf("selectAudioFormat() error: %v", err)
+	}
+	if got.ID != "140" {
+		t.Fatalf("selectAudioFormat() = %q, want %q", got.ID, "140")
+	}
+}
+
+func TestSelectAudioFormatMultipleOriginalsUsesTBRIDOrdering(t *testing.T) {
+	// Multiple language_preference == 10 originals — previous TBR→ID ordering applies.
+	// Higher TBR wins; if equal, lower ID wins.
+	formats := []mediaFormat{
+		{ID: "140-17", VCodec: "none", ACodec: "mp4a.40.2", Ext: "m4a", Protocol: "https",
+			TBR: 129.476, FormatNote: "English (US) original (default), medium", LanguagePreference: 10},
+		{ID: "140-5", VCodec: "none", ACodec: "mp4a.40.2", Ext: "m4a", Protocol: "https",
+			TBR: 130.2, FormatNote: "Japanese (JP) original (default), medium", LanguagePreference: 10},
+	}
+	got, err := selectAudioFormat(formats, "mp4", sourceYouTube)
+	if err != nil {
+		t.Fatalf("selectAudioFormat() error: %v", err)
+	}
+	if got.ID != "140-5" {
+		t.Fatalf("selectAudioFormat() = %q, want %q (higher TBR within originals)", got.ID, "140-5")
+	}
+}
+
+func TestSelectAudioFormatOriginalWinsOverAlternate(t *testing.T) {
+	// language_preference == 10 (original) vs == 5 (alternate) — original wins
+	// even if the alternate has higher TBR.
+	formats := []mediaFormat{
+		{ID: "140-0", VCodec: "none", ACodec: "mp4a.40.2", Ext: "m4a", Protocol: "https",
+			TBR: 130.5, FormatNote: "English, medium", LanguagePreference: 5},
+		{ID: "140-17", VCodec: "none", ACodec: "mp4a.40.2", Ext: "m4a", Protocol: "https",
+			TBR: 129.476, FormatNote: "English (US) original (default), medium", LanguagePreference: 10},
+	}
+	got, err := selectAudioFormat(formats, "mp4", sourceYouTube)
+	if err != nil {
+		t.Fatalf("selectAudioFormat() error: %v", err)
+	}
+	if got.ID != "140-17" {
+		t.Fatalf("selectAudioFormat() = %q, want %q (language_preference 10 wins)", got.ID, "140-17")
+	}
+}
+
+func TestSelectAudioFormatNoOriginalPreservesOldOrdering(t *testing.T) {
+	// No language_preference == 10 candidate. language_preference values of 5 and -1
+	// must NOT reorder candidates — old TBR→ID behavior is preserved.
+	// Candidate A: language_preference=5, lower TBR → must NOT win over B.
+	// Candidate B: language_preference=-1, higher TBR → wins.
+	formats := []mediaFormat{
+		{ID: "140-0", VCodec: "none", ACodec: "mp4a.40.2", Ext: "m4a", Protocol: "https",
+			TBR: 128.0, FormatNote: "English, medium", LanguagePreference: 5},
+		{ID: "140-1", VCodec: "none", ACodec: "mp4a.40.2", Ext: "m4a", Protocol: "https",
+			TBR: 130.5, FormatNote: "Arabic, medium", LanguagePreference: -1},
+	}
+	got, err := selectAudioFormat(formats, "mp4", sourceYouTube)
+	if err != nil {
+		t.Fatalf("selectAudioFormat() error: %v", err)
+	}
+	if got.ID != "140-1" {
+		t.Fatalf("selectAudioFormat() = %q, want %q (higher TBR wins when no original)", got.ID, "140-1")
+	}
+}
+
+func TestSelectAudioFormatNoPreferenceFallsThroughToTBR(t *testing.T) {
+	// All language_preference values are 0 (absent) — old TBR→ID behavior unchanged.
+	formats := []mediaFormat{
+		{ID: "140-0", VCodec: "none", ACodec: "mp4a.40.2", Ext: "m4a", Protocol: "https", TBR: 129.0},
+		{ID: "140-1", VCodec: "none", ACodec: "mp4a.40.2", Ext: "m4a", Protocol: "https", TBR: 130.5},
+	}
+	got, err := selectAudioFormat(formats, "mp4", sourceYouTube)
+	if err != nil {
+		t.Fatalf("selectAudioFormat() error: %v", err)
+	}
+	if got.ID != "140-1" {
+		t.Fatalf("selectAudioFormat() = %q, want %q (higher TBR)", got.ID, "140-1")
+	}
+}
+
+func TestSelectAudioFormatTwitchVODIgnoresLanguagePreference(t *testing.T) {
+	// Twitch VOD with language_preference == 10 must NOT alter the old TBR→ID ordering.
+	// Candidate A: language_preference=10, lower TBR → must NOT win.
+	// Candidate B: language_preference=-1, higher TBR → wins under old TBR→ID ordering.
+	formats := []mediaFormat{
+		{ID: "140-0", VCodec: "none", ACodec: "mp4a.40.2", Ext: "m4a", Protocol: "https",
+			TBR: 128.0, FormatNote: "English original", LanguagePreference: 10},
+		{ID: "140-1", VCodec: "none", ACodec: "mp4a.40.2", Ext: "m4a", Protocol: "https",
+			TBR: 130.5, FormatNote: "Arabic dub", LanguagePreference: -1},
+	}
+	got, err := selectAudioFormat(formats, "mp4", sourceTwitchVOD)
+	if err != nil {
+		t.Fatalf("selectAudioFormat() error: %v", err)
+	}
+	if got.ID != "140-1" {
+		t.Fatalf("selectAudioFormat() = %q, want %q (Twitch VOD ignores language_preference; higher TBR wins)", got.ID, "140-1")
+	}
+}
+
 func TestSelectVideoFormatPrefersCompatibleMP4AtExactTier(t *testing.T) {
 	formats := []mediaFormat{
 		{ID: "315", Width: 3840, Height: 2160, FormatNote: "2160p60", VCodec: "vp9", ACodec: "none", Ext: "webm", Protocol: "https", TBR: 17000},
@@ -114,7 +255,7 @@ func TestSelectVideoFormatPrefersCompatibleMP4AtExactTier(t *testing.T) {
 	if err != nil || got.ID != "401" {
 		t.Fatalf("selectVideoFormat() = %#v, %v; want format 401", got, err)
 	}
-	audio, err := selectAudioFormat(formats, "mp4")
+	audio, err := selectAudioFormat(formats, "mp4", sourceYouTube)
 	if err != nil || audio.ID != "140" {
 		t.Fatalf("selectAudioFormat() = %#v, %v", audio, err)
 	}

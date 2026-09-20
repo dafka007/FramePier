@@ -134,13 +134,13 @@ func main() {
 		install := os.Args[1] != "--unregister"
 		if err := manageRegistration(root, install); err != nil {
 			if os.Args[1] == "--repair-ui" {
-				showInformation("VidDock Browser Integration", "Repair failed: "+err.Error())
+				showInformation("FramePier Browser Integration", "Repair failed: "+err.Error())
 			}
-			_, _ = fmt.Fprintln(os.Stderr, "VidDock registration failed:", err)
+			_, _ = fmt.Fprintln(os.Stderr, "FramePier registration failed:", err)
 			os.Exit(1)
 		}
 		if os.Args[1] == "--repair-ui" {
-			showInformation("VidDock Browser Integration", browserIntegrationSummary(root))
+			showInformation("FramePier Browser Integration", browserIntegrationSummary(root))
 			openBrowserSetup(root)
 		}
 		return
@@ -160,7 +160,7 @@ func main() {
 	if err := os.MkdirAll(filepath.Join(dataDir, "logs"), 0700); err != nil {
 		fatalNative(err)
 	}
-	logPath := filepath.Join(dataDir, "logs", "viddock-helper.log")
+	logPath := filepath.Join(dataDir, "logs", "framepier-helper.log")
 	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
 		fatalNative(err)
@@ -428,7 +428,7 @@ func (a *app) startDownload(req request, base response) {
 	}
 	if active >= maxJobs {
 		a.mu.Unlock()
-		base["ok"], base["error"] = false, "VidDock is already running the maximum number of downloads."
+		base["ok"], base["error"] = false, "FramePier is already running the maximum number of downloads."
 		a.send(base)
 		return
 	}
@@ -584,7 +584,7 @@ func (a *app) runDownload(ctx context.Context, j *job, ytdlp string, target medi
 			}
 			selectedAudio := mediaFormat{}
 			if target.Source != sourceTwitchClip && (selected.ACodec == "" || selected.ACodec == "none") {
-				selectedAudio, err = selectAudioFormat(metadata.Formats, req.Container)
+				selectedAudio, err = selectAudioFormat(metadata.Formats, req.Container, target.Source)
 				if err != nil {
 					a.finishJob(j, "failed", "", err.Error()+".")
 					return
@@ -1038,7 +1038,13 @@ func (a *app) chooseDownloadFolder(base response, owner uintptr) {
 }
 
 func (a *app) loadSettings() settings {
-	fallback := settings{DownloadPath: filepath.Join(userDownloads(), "VidDock"), AutoOpen: false}
+	newDefault := filepath.Join(userDownloads(), "FramePier")
+	oldDefault := filepath.Join(userDownloads(), "VidDock")
+	defaultPath := newDefault
+	if _, err := os.Stat(filepath.Join(a.dataDir, ".viddock-upgraded")); err == nil {
+		defaultPath = oldDefault
+	}
+	fallback := settings{DownloadPath: defaultPath, AutoOpen: false}
 	data, err := os.ReadFile(a.settingsPath())
 	if err != nil {
 		return fallback
@@ -1058,9 +1064,9 @@ func (a *app) settingsPath() string { return filepath.Join(a.dataDir, "settings.
 
 func (a *app) openFixedFolder(path string, base response) {
 	if err := a.launchFixedFolder(path, fmt.Sprint(base["command"])); err != nil {
-		message := "VidDock couldn't open the download folder. Check the log for details."
+		message := "FramePier couldn't open the download folder. Check the log for details."
 		if base["command"] == "open_logs_folder" {
-			message = "VidDock couldn't open the logs folder."
+			message = "FramePier couldn't open the logs folder."
 		}
 		base["ok"], base["error"] = false, message
 	} else {
@@ -1369,6 +1375,6 @@ func safeDiagnosticLine(value, canonicalURL, downloadPath string) string {
 }
 
 func fatalNative(err error) {
-	_, _ = fmt.Fprintln(os.Stderr, "VidDock helper failed:", err)
+	_, _ = fmt.Fprintln(os.Stderr, "FramePier helper failed:", err)
 	os.Exit(1)
 }

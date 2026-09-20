@@ -8,7 +8,7 @@ $ErrorActionPreference = 'Stop'
 Add-Type -TypeDefinition @'
 using System;
 using System.Runtime.InteropServices;
-public static class VidDockWindowProbe {
+public static class FramePierWindowProbe {
     [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr hwnd);
 }
 '@
@@ -42,7 +42,7 @@ function FolderWindows([string]$Path) {
     foreach ($window in $shell.Windows()) {
         try {
             if ($window.Document.Folder.Self.Path -eq $Path) {
-                [pscustomobject]@{ path = $Path; hwnd = $window.HWND; visible = [VidDockWindowProbe]::IsWindowVisible([IntPtr]$window.HWND) }
+                [pscustomobject]@{ path = $Path; hwnd = $window.HWND; visible = [FramePierWindowProbe]::IsWindowVisible([IntPtr]$window.HWND) }
             }
         } catch {}
     }

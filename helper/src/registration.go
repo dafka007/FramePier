@@ -55,11 +55,11 @@ func manifestPath(root string) string {
 }
 
 func writeNativeHostManifest(root string) error {
-	helper := filepath.Join(root, "VidDockHelper.exe")
+	helper := filepath.Join(root, "FramePierHelper.exe")
 	if info, err := os.Stat(helper); err != nil || !info.Mode().IsRegular() {
-		return errors.New("VidDockHelper.exe is missing")
+		return errors.New("FramePierHelper.exe is missing")
 	}
-	manifest := nativeHostManifest{Name: nativeHostName, Description: "VidDock local video download helper", Path: helper, Type: "stdio", AllowedOrigins: []string{extensionOrigin}}
+	manifest := nativeHostManifest{Name: nativeHostName, Description: "FramePier local video download helper", Path: helper, Type: "stdio", AllowedOrigins: []string{extensionOrigin}}
 	data, err := json.MarshalIndent(manifest, "", "  ")
 	if err != nil {
 		return err
@@ -96,7 +96,7 @@ func validateNativeHostManifest(root string) error {
 	if manifest.Name != nativeHostName || manifest.Type != "stdio" {
 		return errors.New("native host manifest identity is invalid")
 	}
-	expectedHelper := filepath.Clean(filepath.Join(root, "VidDockHelper.exe"))
+	expectedHelper := filepath.Clean(filepath.Join(root, "FramePierHelper.exe"))
 	if !filepath.IsAbs(manifest.Path) || !strings.EqualFold(filepath.Clean(manifest.Path), expectedHelper) {
 		return errors.New("native host manifest helper path is invalid")
 	}
@@ -162,7 +162,7 @@ func manageRegistration(root string, install bool) error {
 }
 
 func nativeSelfTest(root string) error {
-	cmd := newHiddenCommand(filepath.Join(root, "VidDockHelper.exe"), extensionOrigin)
+	cmd := newHiddenCommand(filepath.Join(root, "FramePierHelper.exe"), extensionOrigin)
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		return err

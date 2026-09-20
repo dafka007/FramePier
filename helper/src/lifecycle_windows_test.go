@@ -9,11 +9,11 @@ import (
 )
 
 func TestValidateLifecycleTargetIsRestrictedToInstalledHelperName(t *testing.T) {
-	valid := filepath.Join(t.TempDir(), "VidDockHelper.exe")
+	valid := filepath.Join(t.TempDir(), "FramePierHelper.exe")
 	if got, err := validateLifecycleTarget(valid); err != nil || got != filepath.Clean(valid) {
 		t.Fatalf("valid target = %q, %v", got, err)
 	}
-	invalid := []string{"VidDockHelper.exe", `\\server\share\VidDockHelper.exe`, `C:\VidDockHelper.exe`, filepath.Join(t.TempDir(), "ffmpeg.exe")}
+	invalid := []string{"FramePierHelper.exe", `\\server\share\FramePierHelper.exe`, `C:\FramePierHelper.exe`, filepath.Join(t.TempDir(), "ffmpeg.exe")}
 	for _, target := range invalid {
 		if _, err := validateLifecycleTarget(target); err == nil {
 			t.Errorf("accepted unsafe lifecycle target %q", target)
@@ -61,12 +61,12 @@ func TestRuntimeStateRoundTrip(t *testing.T) {
 
 func TestShutdownEventsAreInstallationScoped(t *testing.T) {
 	root := t.TempDir()
-	first, err := openShutdownEventForTarget(filepath.Join(root, "first", "VidDockHelper.exe"))
+	first, err := openShutdownEventForTarget(filepath.Join(root, "first", "FramePierHelper.exe"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer first.close()
-	second, err := openShutdownEventForTarget(filepath.Join(root, "second", "VidDockHelper.exe"))
+	second, err := openShutdownEventForTarget(filepath.Join(root, "second", "FramePierHelper.exe"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -80,7 +80,7 @@ func TestShutdownEventsAreInstallationScoped(t *testing.T) {
 }
 
 func TestTerminationRejectsMismatchedProcessHandle(t *testing.T) {
-	if err := terminateHelperAtPath(uint32(os.Getpid()), filepath.Join(t.TempDir(), "VidDockHelper.exe")); err == nil {
+	if err := terminateHelperAtPath(uint32(os.Getpid()), filepath.Join(t.TempDir(), "FramePierHelper.exe")); err == nil {
 		t.Fatal("mismatched process identity was accepted")
 	}
 }
