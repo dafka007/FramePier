@@ -98,9 +98,9 @@ For an explicitly selected quality, FramePier resolves an exact current video fo
 
 ## yt-dlp and FFmpeg
 
-The build downloads `yt-dlp.exe` from the official GitHub release and verifies it against the release's official SHA-256 list. The Settings page can run the executable's controlled `-U` updater; it cannot select another repository or update channel.
+The current v0.2.2 build source downloads `yt-dlp.exe` from the official GitHub release and verifies it against that release's official SHA-256 list. Because the source currently follows the `latest` release URL, future public releases must pin the exact yt-dlp version and artifact under the release gate. The Settings page can run the executable's controlled `-U` updater; it cannot select another repository or update channel.
 
-FFmpeg is downloaded from gyan.dev, one of the Windows build providers linked on ffmpeg.org, and verified with the provider's SHA-256 file. FramePier never downloads tools from page-provided URLs.
+The current v0.2.2 build source pins an FFmpeg archive from Gyan, one of the Windows build providers linked on ffmpeg.org, and verifies it against a fixed expected SHA-256. The next public release must refresh the FFmpeg version, security review, license/redistribution evidence, and corresponding-source status before publication. FramePier never downloads tools from page-provided URLs.
 
 ## Settings and logs
 
@@ -176,7 +176,7 @@ Downloading media can be restricted by copyright law, contracts, or a service's 
 
 ## Contributing
 
-Small, reviewable changes with tests are welcome when this repository is published. Do not add telemetry, broad host permissions, remote JavaScript, cookie extraction, credential access, DRM bypasses, or generic command execution. Run `scripts/test.ps1` and document browser acceptance results with the change.
+Small, reviewable changes with tests are welcome. Do not add telemetry, broad host permissions, remote JavaScript, cookie extraction, credential access, DRM bypasses, or generic command execution. Run `scripts/test.ps1` and document browser acceptance results with the change.
 
 ## License
 
