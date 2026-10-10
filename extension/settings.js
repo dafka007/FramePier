@@ -1,5 +1,5 @@
 const byId = (id) => document.getElementById(id);
-const ids = ["defaultQuality", "defaultContainer", "defaultAudioFormat", "downloadPath", "browseButton", "autoOpen", "saveButton", "saveStatus", "nativeStatus", "helperVersion", "ytdlpVersion", "ffmpegVersion", "extensionVersion", "browserName", "refreshButton", "updateButton", "openFolderButton", "openLogsButton"];
+const ids = ["defaultQuality", "defaultContainer", "defaultAudioFormat", "downloadPath", "browseButton", "autoOpen", "saveButton", "saveStatus", "nativeStatus", "helperVersion", "ytdlpVersion", "ffmpegVersion", "jsRuntimeStatus", "extensionVersion", "browserName", "refreshButton", "updateButton", "openFolderButton", "openLogsButton"];
 const el = Object.fromEntries(ids.map((id) => [id, byId(id)]));
 
 document.addEventListener("DOMContentLoaded", initialize);
@@ -35,6 +35,7 @@ async function refresh() {
     el.helperVersion.textContent = `Installed · ${value.helper.version}`;
     el.ytdlpVersion.textContent = value.ytDlp.installed ? `Installed · ${value.ytDlp.version || "version unknown"}` : "Missing";
     el.ffmpegVersion.textContent = value.ffmpeg.installed ? `Installed · ${shortFFmpegVersion(value.ffmpeg.version)}` : "Missing";
+    el.jsRuntimeStatus.textContent = describeJsRuntime(value.jsRuntime);
     el.downloadPath.value = settings.result.settings.downloadPath;
     el.autoOpen.checked = Boolean(settings.result.settings.autoOpen);
     setStatus("");
@@ -118,6 +119,13 @@ function detectBrowser() {
 function setStatus(message, error = false) {
   el.saveStatus.textContent = message;
   el.saveStatus.style.color = error ? "#ff929e" : "#65d8b0";
+}
+
+function describeJsRuntime(runtime) {
+  if (!runtime || typeof runtime !== "object") return "Unknown";
+  if (runtime.usable) return `Installed · Deno ${runtime.version || "version unknown"}`;
+  if (runtime.installed) return "Not working · YouTube unavailable · reinstall FramePier";
+  return "Missing · YouTube unavailable · reinstall FramePier";
 }
 
 function shortFFmpegVersion(value = "") {

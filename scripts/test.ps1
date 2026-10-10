@@ -17,7 +17,7 @@ try {
 
 $manifest = Get-Content -Raw -LiteralPath (Join-Path $projectRoot 'extension\manifest.json') | ConvertFrom-Json
 if ($manifest.manifest_version -ne 3) { throw 'Extension is not Manifest V3.' }
-if ($manifest.version -ne '0.2.2') { throw 'Extension version is inconsistent.' }
+if ($manifest.version -ne '0.2.3') { throw 'Extension version is inconsistent.' }
 $packageVersion = Get-Content -Raw -LiteralPath (Join-Path $projectRoot 'installer\package-version.json') | ConvertFrom-Json
 if ($packageVersion.product -ne 'VidDock' -or $packageVersion.packageVersion -ne $manifest.version -or $packageVersion.extensionId -ne 'kclnooibijmfenaldmpkffdbednfipkk') {
     throw 'Trusted package-version marker is inconsistent.'
@@ -69,6 +69,11 @@ foreach ($file in $allSource) {
     }
 }
 
+$denoTool = Join-Path $projectRoot 'dist\helper\tools\deno.exe'
+if (Test-Path -LiteralPath $denoTool) {
+    $denoVersionLine = (& $denoTool --version | Select-Object -First 1)
+    if ($denoVersionLine -notmatch '^deno 2\.9\.7\b') { throw "Unexpected bundled Deno version: $denoVersionLine" }
+}
 $helper = Join-Path $projectRoot 'dist\helper\FramePierHelper.exe'
 if (Test-Path -LiteralPath $helper) {
     $start = New-Object System.Diagnostics.ProcessStartInfo
@@ -114,6 +119,6 @@ if (Test-Path -LiteralPath $helper) {
     }
 }
 
-Write-Host 'All FramePier automated tests passed.'
-& node --test (Join-Path $projectRoot 'scripts\folder-ui.test.mjs') (Join-Path $projectRoot 'scripts\background.test.mjs')
+& node --test (Join-Path $projectRoot 'scripts\folder-ui.test.mjs') (Join-Path $projectRoot 'scripts\background.test.mjs') (Join-Path $projectRoot 'scripts\settings-runtime.test.mjs') (Join-Path $projectRoot 'scripts\url-fixtures.test.mjs') (Join-Path $projectRoot 'scripts\popup-ui.test.mjs')
 if ($LASTEXITCODE -ne 0) { throw 'Extension regression tests failed.' }
+Write-Host 'All FramePier automated tests passed.'

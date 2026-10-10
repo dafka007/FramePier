@@ -49,8 +49,8 @@ type videoResolution struct {
 	ApproxBytes int64  `json:"approxBytes,omitempty"`
 }
 
-func loadVideoMetadata(ctx context.Context, ytdlp, workingDirectory, canonicalURL string) (videoMetadata, error) {
-	cmd := newHiddenCommandContext(ctx, ytdlp, "--dump-single-json", "--no-playlist", "--no-warnings", "--skip-download", canonicalURL)
+func loadVideoMetadata(ctx context.Context, ytdlp, runtimePath string, source mediaSource, workingDirectory, canonicalURL string) (videoMetadata, error) {
+	cmd := newYtdlpCommandContext(ctx, ytdlp, runtimePath, source, "--dump-single-json", "--no-playlist", "--no-warnings", "--skip-download", canonicalURL)
 	cmd.Dir = workingDirectory
 	output, err := cmd.Output()
 	if err != nil {
@@ -403,6 +403,13 @@ func formatScore(format mediaFormat, container string) float64 {
 	return score
 }
 
+// hasCombinedFormats reports whether the source serves each quality as one
+// stream that already contains audio (Twitch clips and Dailymotion HLS), so no
+// separate audio stream is selected or merged.
+func hasCombinedFormats(source mediaSource) bool {
+	return source == sourceTwitchClip || source == sourceDailymotion
+}
+
 func selectedFormatExpression(video, audio mediaFormat) (string, error) {
 	return selectedFormatExpressionForSource(video, audio, sourceYouTube)
 }
@@ -411,7 +418,7 @@ func selectedFormatExpressionForSource(video, audio mediaFormat, source mediaSou
 	if !formatIDPattern.MatchString(video.ID) {
 		return "", errors.New("downloader returned an unsafe format identifier")
 	}
-	if source == sourceTwitchClip {
+	if hasCombinedFormats(source) {
 		return video.ID, nil
 	}
 	if video.ACodec != "" && video.ACodec != "none" {

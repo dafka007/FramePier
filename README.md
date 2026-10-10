@@ -1,10 +1,10 @@
 # FramePier — Browser Video Downloader for Windows
 
-FramePier is an open-source Windows video downloader that works through a browser extension and local helper. It currently supports YouTube videos and public Twitch clips/VODs, with Chrome, Brave, and Edge supported today. Downloads are handled locally by `yt-dlp`, with FFmpeg used for merging or conversion.
+FramePier is an open-source Windows video downloader that works through a browser extension and local helper. It currently supports YouTube videos, public Twitch clips/VODs, and public Dailymotion videos, with Chrome, Brave, and Edge supported today. Downloads are handled locally by `yt-dlp`, with FFmpeg used for merging or conversion.
 
 Use FramePier only for media you own, have permission to download, or are otherwise legally allowed to save.
 
-Version: **0.2.2**
+Version: **0.2.3**
 
 ## Support
 
@@ -15,11 +15,11 @@ Version: **0.2.2**
 
 ## Requirements
 
-The Windows installer includes the FramePier helper, a checksum-verified official `yt-dlp` Windows release, and FFmpeg from the Windows build provider linked by the FFmpeg project. No Python or other runtime is required after installation.
+The Windows installer includes the FramePier helper, a checksum-verified official `yt-dlp` Windows release, and FFmpeg from the Windows build provider linked by the FFmpeg project. It also includes a pinned, checksum-verified Deno JavaScript runtime, which yt-dlp needs to extract YouTube videos. No Python or other runtime is required after installation.
 
 ## Install the helper
 
-1. Run FramePier-Setup-0.2.2.exe.
+1. Run FramePier-Setup-0.2.3.exe.
 2. Accept the default install location.
 3. Select the installed browsers shown on the **Browser Integration** page. FramePier registers Native Messaging manifests for those browsers.
 4. After installation, load the FramePier extension manually using the instructions below.
@@ -48,7 +48,7 @@ This is a sideloaded, unpacked extension. It is not installed from the Chrome We
 7. Open the FramePier **Settings** page (gear icon in the popup).
 8. Confirm **Native Messaging: Connected** is shown.
 
-The GitHub release also includes `FramePier-extension-0.2.2.zip`. You can extract that ZIP to a permanent folder and use **Load unpacked** on the extracted folder containing `manifest.json` instead of the installed path.
+The GitHub release also includes `FramePier-extension-0.2.3.zip`. You can extract that ZIP to a permanent folder and use **Load unpacked** on the extracted folder containing `manifest.json` instead of the installed path.
 
 The checked-in manifest public key keeps the unpacked extension ID stable: `kclnooibijmfenaldmpkffdbednfipkk`. The Native Messaging manifest accepts only that extension origin.
 
@@ -56,7 +56,7 @@ Brave Shields can remain enabled. FramePier uses the active tab URL and the loca
 
 ## First download
 
-1. Open a supported YouTube watch, short, live, or `youtu.be` URL; a public Twitch clip; or a completed public Twitch VOD.
+1. Open a supported YouTube watch, short, live, or `youtu.be` URL; a public Twitch clip; a completed public Twitch VOD; or a public Dailymotion video (`dailymotion.com/video/<id>`).
 2. Click the FramePier toolbar icon.
 3. Wait for metadata and the available quality list.
 4. Choose **Video** or **Audio**, then a quality/container or audio format.
@@ -72,6 +72,12 @@ FramePier accepts public Twitch clip URLs in either `clips.twitch.tv/<slug>` or 
 
 Twitch VODs can be several hours and multiple gigabytes. Before a VOD starts, FramePier retrieves its current formats, estimates the selected stream size when bitrate metadata permits, and checks free space for the destination and processing directory. Estimates are approximate. Downloads have no arbitrary duration timeout, use 64-bit byte counters, remain cancellable, and retain yt-dlp's normal partial-file/resume behavior when the source protocol permits it.
 
+### Dailymotion support
+
+FramePier accepts public Dailymotion video pages in the form `https://www.dailymotion.com/video/<id>` (also without `www`, and with the older `/video/<id>_<slug>` suffix). The URL is rebuilt from the validated ID; query strings, slugs and fragments are never passed to the downloader. Other Dailymotion hosts and page types (embeds, short links, playlists, user pages, search, live streams) are intentionally unsupported.
+
+Dailymotion serves each quality as one combined HLS stream, so qualities are the stream sizes it reports, MP4 and MKV are produced by remuxing that stream without re-encoding, and Audio is extracted from the video stream with FFmpeg (MP3 or M4A; the default "best" audio is saved as M4A). No Dailymotion thumbnail is shown. It works anonymously (no cookies, login, or DRM handling), does not need the JavaScript runtime, and uses yt-dlp's dedicated Dailymotion extractor.
+
 ## Architecture
 
 ```text
@@ -81,7 +87,7 @@ Manifest V3 extension (UI and controller)
         │  Chrome Native Messaging
 FramePierHelper.exe (Go, fixed JSON protocol)
         │
-yt-dlp.exe ── FFmpeg/ffprobe when required
+yt-dlp.exe ── FFmpeg/ffprobe when required; bundled Deno (YouTube only)
         │
 %USERPROFILE%\Downloads\FramePier
 ```
@@ -98,9 +104,11 @@ For an explicitly selected quality, FramePier resolves an exact current video fo
 
 ## yt-dlp and FFmpeg
 
-The current v0.2.2 build source downloads `yt-dlp.exe` from the official GitHub release and verifies it against that release's official SHA-256 list. Because the source currently follows the `latest` release URL, future public releases must pin the exact yt-dlp version and artifact under the release gate. The Settings page can run the executable's controlled `-U` updater; it cannot select another repository or update channel.
+The build downloads `yt-dlp.exe` from the pinned official GitHub release tag (2026.08.19) and verifies it against that release's official SHA-256 list. Public binary releases remain subject to the dependency, security and redistribution release gate. The Settings page can run the executable's controlled `-U` updater; it cannot select another repository or update channel.
 
-The current v0.2.2 build source pins an FFmpeg archive from Gyan, one of the Windows build providers linked on ffmpeg.org, and verifies it against a fixed expected SHA-256. The next public release must refresh the FFmpeg version, security review, license/redistribution evidence, and corresponding-source status before publication. FramePier never downloads tools from page-provided URLs.
+FFmpeg is downloaded from the BtbN/FFmpeg-Builds GitHub repository (pinned release tag), and verified with SHA-256 checksums on both the archive and extracted binaries. FramePier never downloads tools from page-provided URLs.
+
+Deno 2.9.7 is bundled as the JavaScript runtime yt-dlp requires for YouTube. The build downloads it from the official release, checks the archive against the checksum published with that release and against a hash recorded in `scripts/build.ps1`, and checks the extracted `deno.exe`. FramePier runs every yt-dlp process with `--ignore-config`, `--no-plugin-dirs`, `--no-remote-components` and `--no-js-runtimes`, then enables only the bundled Deno by absolute path. It never uses a runtime found on PATH, and Twitch downloads do not need it. The redistribution and source-availability gate for the bundled FFmpeg is PENDING / NOT CLEARED (see `THIRD_PARTY_NOTICES.md`); no public binary release should be published until it is completed.
 
 ## Settings and logs
 
@@ -124,6 +132,8 @@ Logs are stored at `%LOCALAPPDATA%\VidDock\logs`. Open them from Settings. Logs 
 - **Unavailable/private/access-limited video:** FramePier does not take cookies or bypass access controls. Use a public or otherwise directly accessible video you are entitled to save.
 - **Twitch live channel:** live streams are not supported yet; use a public clip or a completed public VOD URL.
 - **Large Twitch VOD:** keep the browser and helper available, leave enough free space for the selected stream and processing, and use Cancel if needed. A retained `.part` file may allow yt-dlp to continue later when Twitch's delivery protocol supports it.
+- **JavaScript runtime missing or not working:** YouTube requests fail with a message saying so, and Settings shows the runtime as Missing or Not working. Reinstall FramePier; Twitch and Dailymotion downloads are not affected.
+- **Dailymotion quality missing:** Dailymotion's extractor can return a different set of renditions on successive requests for the same video (for example 288p and 480p on one request and 288p, 480p and 720p on the next). This was observed with the bundled yt-dlp and is not caused by FramePier's filtering; the upstream cause is unverified. Close and reopen FramePier to request the list again. A download at "Best available" uses whatever the downloader sees at that moment.
 - **Format unavailable:** refresh the popup and choose one of the qualities currently reported by the helper.
 - **Permission/disk error:** choose a writable local folder with sufficient free space.
 - **Brave:** leave Shields enabled. If Native Messaging fails, repair registration and restart Brave; Shields do not control Native Messaging.
@@ -180,4 +190,4 @@ Small, reviewable changes with tests are welcome. Do not add telemetry, broad ho
 
 ## License
 
-FramePier's original source is licensed under the MIT License; see [LICENSE](LICENSE). Bundled release tools have their own licenses, including GPL terms. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). A distributor must preserve those notices and comply with the applicable third-party licenses.
+FramePier's original source is licensed under the MIT License; see [LICENSE](LICENSE). Bundled release tools have their own licenses, including LGPL-3.0 terms for FFmpeg and GPLv3+ and other terms for components inside the yt-dlp executable. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). A distributor must preserve those notices and comply with the applicable third-party licenses.

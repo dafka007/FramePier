@@ -23,8 +23,10 @@ Do not include cookies, authentication tokens, private video URLs, credentials, 
 FramePier intentionally:
 
 - authorizes only extension origin `chrome-extension://kclnooibijmfenaldmpkffdbednfipkk/` in the Native Messaging host manifest;
-- uses HTTPS and an allowlist of official YouTube and Twitch hostnames;
-- canonicalizes accepted URLs using a validated YouTube ID, Twitch clip slug, or numeric Twitch VOD ID;
+- uses HTTPS and an allowlist of official YouTube, Twitch and Dailymotion hostnames (for Dailymotion only `dailymotion.com` and `www.dailymotion.com`, with no credentials or port);
+- canonicalizes accepted URLs using a validated YouTube ID, Twitch clip slug, numeric Twitch VOD ID, or Dailymotion `x`-prefixed video ID, so no other URL component reaches yt-dlp;
+- starts Dailymotion downloads with `--use-extractors dailymotion` and `--match-filters !is_live`. `--use-extractors` only selects which yt-dlp extractor may handle the URL. It is not a network sandbox: yt-dlp and the extractor still request Dailymotion's API and media hosts, may follow redirects, and FramePier does not restrict DNS or secondary requests. Safety rests on the narrow URL allowlist, the fixed argument arrays and the hardening flags above;
+- shows no Dailymotion thumbnail and adds no Dailymotion host permission or image-source exception to the extension;
 - accepts a small fixed JSON command set with a 1 MiB message limit;
 - rejects unknown message fields and invalid field types;
 - builds all `yt-dlp`, FFmpeg, Explorer, and registry process calls from explicit argument arrays without a command shell;
@@ -43,7 +45,7 @@ Some internal identifiers intentionally retain the former VidDock name so existi
 
 ## Dependency and update trust
 
-Builds retrieve Go from `go.dev`, `yt-dlp.exe` from the official `yt-dlp/yt-dlp` GitHub release, and a pinned FFmpeg Windows build from a provider linked by the FFmpeg project. Downloaded release artifacts are checksum-verified before packaging.
+Builds retrieve Go from `go.dev`, `yt-dlp.exe` from the official `yt-dlp/yt-dlp` GitHub release (pinned tag), FFmpeg from the BtbN/FFmpeg-Builds repository (pinned release tag), and Deno from the official release (pinned version). Every downloaded release artifact is checksum-verified before packaging.
 
 Before every public binary release, the release gate must verify the exact dependency versions, current security advisories, the exact artifacts and hashes being bundled, license and redistribution obligations, and required source/source-availability status. A failed or incomplete gate blocks the public release.
 

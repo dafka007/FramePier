@@ -26,7 +26,10 @@
 
     <section id="videoPanel" class="hidden">
       <div class="video-card">
-        <img id="thumbnail" class="thumbnail" alt="Video thumbnail" referrerpolicy="no-referrer">
+        <div class="thumbnail-frame">
+          <img id="thumbnail" class="thumbnail" alt="Video thumbnail" referrerpolicy="no-referrer">
+          <div id="thumbnailPlaceholder" class="thumbnail-placeholder hidden" aria-hidden="true"></div>
+        </div>
         <div class="metadata">
           <p id="sourceLabel" class="source-label"></p>
           <h1 id="videoTitle"></h1>
