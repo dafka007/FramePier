@@ -64,26 +64,66 @@ try {
 if (-not $SkipDownloads) {
     $ytdlp = Join-Path $dependencyDir 'yt-dlp.exe'
     $sumFile = Join-Path $cacheRoot 'yt-dlp-SHA2-256SUMS'
-    Download-File 'https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe' $ytdlp
-    Invoke-WebRequest -UseBasicParsing -Uri 'https://github.com/yt-dlp/yt-dlp/releases/latest/download/SHA2-256SUMS' -OutFile $sumFile
+    Download-File 'https://github.com/yt-dlp/yt-dlp/releases/download/2026.08.19/yt-dlp.exe' $ytdlp
+    Invoke-WebRequest -UseBasicParsing -Uri 'https://github.com/yt-dlp/yt-dlp/releases/download/2026.08.19/SHA2-256SUMS' -OutFile $sumFile
     $expectedLine = Get-Content -LiteralPath $sumFile | Where-Object { $_ -match '\syt-dlp\.exe$' } | Select-Object -First 1
     if (-not $expectedLine) { throw 'yt-dlp checksum file did not contain yt-dlp.exe.' }
     Assert-Sha256 $ytdlp (($expectedLine -split '\s+')[0])
 
-    # Gyan is linked by ffmpeg.org. This immutable release URL and SHA-256 are
-    # also published in the Windows Package Manager Gyan.FFmpeg.Essentials manifest.
-    $ffmpegArchive = Join-Path $cacheRoot 'ffmpeg-8.1.1-essentials_build.zip'
-    Download-File 'https://github.com/GyanD/codexffmpeg/releases/download/8.1.1/ffmpeg-8.1.1-essentials_build.zip' $ffmpegArchive
-    Assert-Sha256 $ffmpegArchive '6f58ce889f59c311410f7d2b18895b33c03456463486f3b1ebc93d97a0f54541'
+    # BtbN/FFmpeg-Builds LGPL static build (immutable release-tag URL).
+    # Provider: https://github.com/BtbN/FFmpeg-Builds
+    # Release:  autobuild-2026-08-31-13-27
+    # Build-repo commit: 8267213e26c1031621e6e1210fe3aa4867214f6a
+    # FFmpeg source commit: 1a748fe2cd43e3ead22fafb1b5b7d77f153898a8
+    # Artifact: ffmpeg-n8.1.2-50-g1a748fe2cd-win64-lgpl-8.1.zip
+    $ffmpegArchive = Join-Path $cacheRoot 'ffmpeg-n8.1.2-50-g1a748fe2cd-win64-lgpl-8.1.zip'
+    Download-File 'https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2026-08-31-13-27/ffmpeg-n8.1.2-50-g1a748fe2cd-win64-lgpl-8.1.zip' $ffmpegArchive
+    Assert-Sha256 $ffmpegArchive 'f6274bbd9c247f9e90c1bbed066b03ed4a3907cece2fb91be6dd352393936365'
     $ffmpegExtract = Join-Path $toolsRoot 'ffmpeg-extract'
     if (Test-Path -LiteralPath $ffmpegExtract) { Remove-Item -LiteralPath $ffmpegExtract -Recurse -Force }
     Expand-Archive -LiteralPath $ffmpegArchive -DestinationPath $ffmpegExtract
+    # BtbN archive structure: ffmpeg-<version>-<target>-<variant>/bin/
+    $binDir = Get-ChildItem -LiteralPath $ffmpegExtract -Directory -Recurse | Where-Object { $_.Name -eq 'bin' } | Select-Object -First 1
+    if (-not $binDir) { throw 'bin directory was not present in the verified FFmpeg archive.' }
+    $expectedBinaryHash = @{
+        'ffmpeg.exe'  = '9c60da6c0b083110d59084ea39f60ae149aa3e031c3b4bb4f573fafa1c1e7cea'
+        'ffprobe.exe' = '67176fa62f89f94c3bcd379fd05677a25651569a2eb8880ec2194e62c82be412'
+    }
     foreach ($name in @('ffmpeg.exe', 'ffprobe.exe')) {
-        $binary = Get-ChildItem -LiteralPath $ffmpegExtract -Filter $name -Recurse | Select-Object -First 1
-        if (-not $binary) { throw "$name was not present in the verified FFmpeg archive." }
-        Copy-Item -LiteralPath $binary.FullName -Destination (Join-Path $dependencyDir $name) -Force
+        $binary = Join-Path $binDir.FullName $name
+        if (-not (Test-Path -LiteralPath $binary)) { throw "$name was not present in the verified FFmpeg archive." }
+        Copy-Item -LiteralPath $binary -Destination (Join-Path $dependencyDir $name) -Force
+        Assert-Sha256 (Join-Path $dependencyDir $name) $expectedBinaryHash[$name]
     }
     Remove-Item -LiteralPath $ffmpegExtract -Recurse -Force
+
+    # Deno: the JavaScript runtime yt-dlp needs for YouTube (official release asset, pinned).
+    # Release:  https://github.com/denoland/deno/releases/tag/v2.9.7
+    # Archive:  deno-x86_64-pc-windows-msvc.zip (contains only deno.exe)
+    # The archive is checked against the checksum file published with the release
+    # AND against the SHA-256 recorded here; the extracted binary's SHA-256 is also recorded.
+    $denoVersion = '2.9.7'
+    $denoZipSha256 = 'a0c3101b4158d1dfb7d6a78a7bf0f3de80c96bb423c152beec8beb22786f2238'
+    $denoExeSha256 = 'e020f3e232bd16e33768dee528e5983349c962952051ced0a5d58ad42f5d9b33'
+    $denoBase = "https://github.com/denoland/deno/releases/download/v$denoVersion"
+    $denoArchive = Join-Path $cacheRoot "deno-$denoVersion-x86_64-pc-windows-msvc.zip"
+    $denoSumFile = Join-Path $cacheRoot "deno-$denoVersion-x86_64-pc-windows-msvc.zip.sha256sum"
+    Download-File "$denoBase/deno-x86_64-pc-windows-msvc.zip" $denoArchive
+    Invoke-WebRequest -UseBasicParsing -Uri "$denoBase/deno-x86_64-pc-windows-msvc.zip.sha256sum" -OutFile $denoSumFile
+    $denoSumText = Get-Content -Raw -LiteralPath $denoSumFile
+    $denoPublished = [regex]::Match($denoSumText, '(?im)^\s*Hash\s*:\s*([0-9A-Fa-f]{64})\s*$')
+    if (-not $denoPublished.Success) { throw 'The published Deno checksum file did not contain a SHA-256 hash.' }
+    Assert-Sha256 $denoArchive $denoPublished.Groups[1].Value
+    Assert-Sha256 $denoArchive $denoZipSha256
+    $denoExtract = Join-Path $toolsRoot 'deno-extract'
+    if (Test-Path -LiteralPath $denoExtract) { Remove-Item -LiteralPath $denoExtract -Recurse -Force }
+    Expand-Archive -LiteralPath $denoArchive -DestinationPath $denoExtract
+    $denoExtracted = Join-Path $denoExtract 'deno.exe'
+    if (-not (Test-Path -LiteralPath $denoExtracted -PathType Leaf)) { throw 'deno.exe was not present in the verified Deno archive.' }
+    Assert-Sha256 $denoExtracted $denoExeSha256
+    Copy-Item -LiteralPath $denoExtracted -Destination (Join-Path $dependencyDir 'deno.exe') -Force
+    Assert-Sha256 (Join-Path $dependencyDir 'deno.exe') $denoExeSha256
+    Remove-Item -LiteralPath $denoExtract -Recurse -Force
 }
 
 $packageVersion = (Get-Content -Raw -LiteralPath (Join-Path $projectRoot 'extension\manifest.json') | ConvertFrom-Json).version

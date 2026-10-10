@@ -1,0 +1,363 @@
+[
+  {
+    "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "accept": true,
+    "source": "youtube",
+    "id": "dQw4w9WgXcQ",
+    "canonical": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+  },
+  {
+    "url": "https://youtu.be/dQw4w9WgXcQ?t=12",
+    "accept": true,
+    "source": "youtube",
+    "id": "dQw4w9WgXcQ",
+    "canonical": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+  },
+  {
+    "url": "https://www.youtube.com/shorts/dQw4w9WgXcQ",
+    "accept": true,
+    "source": "youtube",
+    "id": "dQw4w9WgXcQ",
+    "canonical": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+  },
+  {
+    "url": "https://m.youtube.com/watch?v=dQw4w9WgXcQ",
+    "accept": true,
+    "source": "youtube",
+    "id": "dQw4w9WgXcQ",
+    "canonical": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+  },
+  {
+    "url": "https://clips.twitch.tv/AmusedMildTitanOSkomodo-hl2PV3WlBurF_8uo",
+    "accept": true,
+    "source": "twitch_clip",
+    "id": "AmusedMildTitanOSkomodo-hl2PV3WlBurF_8uo",
+    "canonical": "https://clips.twitch.tv/AmusedMildTitanOSkomodo-hl2PV3WlBurF_8uo"
+  },
+  {
+    "url": "https://www.twitch.tv/twitch/clip/AmusedMildTitanOSkomodo-hl2PV3WlBurF_8uo",
+    "accept": true,
+    "source": "twitch_clip",
+    "id": "AmusedMildTitanOSkomodo-hl2PV3WlBurF_8uo",
+    "canonical": "https://clips.twitch.tv/AmusedMildTitanOSkomodo-hl2PV3WlBurF_8uo"
+  },
+  {
+    "url": "https://www.twitch.tv/videos/2865128806?t=1h2m",
+    "accept": true,
+    "source": "twitch_vod",
+    "id": "2865128806",
+    "canonical": "https://www.twitch.tv/videos/2865128806"
+  },
+  {
+    "url": "http://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "accept": false,
+    "why": "http scheme"
+  },
+  {
+    "url": "https://youtube.com.evil.test/watch?v=dQw4w9WgXcQ",
+    "accept": false,
+    "why": "lookalike"
+  },
+  {
+    "url": "https://www.youtube.com/playlist?list=PL123",
+    "accept": false,
+    "why": "playlist"
+  },
+  {
+    "url": "https://www.twitch.tv/somechannel",
+    "accept": false,
+    "why": "live channel"
+  },
+  {
+    "url": "https://www.twitch.tv/directory",
+    "accept": false,
+    "why": "reserved"
+  },
+  {
+    "url": "javascript:alert(1)",
+    "accept": false,
+    "why": "scheme"
+  },
+  {
+    "url": "file:///C:/Windows/System32",
+    "accept": false,
+    "why": "scheme"
+  },
+  {
+    "url": "data:text/html,hello",
+    "accept": false,
+    "why": "scheme"
+  },
+  {
+    "url": "https://example.com/video/xmo8jh",
+    "accept": false,
+    "why": "other site"
+  },
+  {
+    "url": "https://www.dailymotion.com/video/xmo8jh",
+    "accept": true,
+    "source": "dailymotion",
+    "id": "xmo8jh",
+    "canonical": "https://www.dailymotion.com/video/xmo8jh"
+  },
+  {
+    "url": "https://dailymotion.com/video/xmo8jh",
+    "accept": true,
+    "source": "dailymotion",
+    "id": "xmo8jh",
+    "canonical": "https://www.dailymotion.com/video/xmo8jh"
+  },
+  {
+    "url": "https://WWW.DAILYMOTION.COM/video/xmo8jh",
+    "accept": true,
+    "source": "dailymotion",
+    "id": "xmo8jh",
+    "canonical": "https://www.dailymotion.com/video/xmo8jh"
+  },
+  {
+    "url": "https://www.dailymotion.com/video/xmo8jh/",
+    "accept": true,
+    "source": "dailymotion",
+    "id": "xmo8jh",
+    "canonical": "https://www.dailymotion.com/video/xmo8jh"
+  },
+  {
+    "url": "https://www.dailymotion.com/video/xmo8jh?playlist=x6a4q8&utm_source=share&url=https://evil.test/",
+    "accept": true,
+    "source": "dailymotion",
+    "id": "xmo8jh",
+    "canonical": "https://www.dailymotion.com/video/xmo8jh"
+  },
+  {
+    "url": "https://www.dailymotion.com/video/x5kesuj_office-christmas-party-review-jason-bateman",
+    "accept": true,
+    "source": "dailymotion",
+    "id": "x5kesuj",
+    "canonical": "https://www.dailymotion.com/video/x5kesuj"
+  },
+  {
+    "url": "http://www.dailymotion.com/video/xmo8jh",
+    "accept": false,
+    "why": "http scheme"
+  },
+  {
+    "url": "https://m.dailymotion.com/video/xmo8jh",
+    "accept": false,
+    "why": "unsupported or lookalike host"
+  },
+  {
+    "url": "https://touch.dailymotion.com/video/xmo8jh",
+    "accept": false,
+    "why": "unsupported or lookalike host"
+  },
+  {
+    "url": "https://geo.dailymotion.com/video/xmo8jh",
+    "accept": false,
+    "why": "unsupported or lookalike host"
+  },
+  {
+    "url": "https://dai.ly/video/xmo8jh",
+    "accept": false,
+    "why": "unsupported or lookalike host"
+  },
+  {
+    "url": "https://www.dailymotion.fr/video/xmo8jh",
+    "accept": false,
+    "why": "unsupported or lookalike host"
+  },
+  {
+    "url": "https://www.dailymotion.com.evil.test/video/xmo8jh",
+    "accept": false,
+    "why": "unsupported or lookalike host"
+  },
+  {
+    "url": "https://notdailymotion.com/video/xmo8jh",
+    "accept": false,
+    "why": "unsupported or lookalike host"
+  },
+  {
+    "url": "https://evil-dailymotion.com/video/xmo8jh",
+    "accept": false,
+    "why": "unsupported or lookalike host"
+  },
+  {
+    "url": "https://dailymotion.com.evil.test/video/xmo8jh",
+    "accept": false,
+    "why": "unsupported or lookalike host"
+  },
+  {
+    "url": "https://www.dailymotion.co/video/xmo8jh",
+    "accept": false,
+    "why": "unsupported or lookalike host"
+  },
+  {
+    "url": "https://evil.test/www.dailymotion.com/video/xmo8jh",
+    "accept": false,
+    "why": "host in path"
+  },
+  {
+    "url": "https://dailymotion.com@evil.test/video/xmo8jh",
+    "accept": false,
+    "why": "credentials-style lookalike"
+  },
+  {
+    "url": "https://user:pass@www.dailymotion.com/video/xmo8jh",
+    "accept": false,
+    "why": "credentials"
+  },
+  {
+    "url": "https://user@www.dailymotion.com/video/xmo8jh",
+    "accept": false,
+    "why": "credentials"
+  },
+  {
+    "url": "https://www.dailymotion.com:8443/video/xmo8jh",
+    "accept": false,
+    "why": "port"
+  },
+  {
+    "url": "https://www.dailymotion.com:80/video/xmo8jh",
+    "accept": false,
+    "why": "port"
+  },
+  {
+    "url": "https://www.dailymotion.com/",
+    "accept": false,
+    "why": "home"
+  },
+  {
+    "url": "https://www.dailymotion.com/video",
+    "accept": false,
+    "why": "no id"
+  },
+  {
+    "url": "https://www.dailymotion.com/video/",
+    "accept": false,
+    "why": "no id"
+  },
+  {
+    "url": "https://www.dailymotion.com/video/xmo8jh/extra",
+    "accept": false,
+    "why": "extra segment"
+  },
+  {
+    "url": "https://www.dailymotion.com/embed/video/xmo8jh",
+    "accept": false,
+    "why": "embed"
+  },
+  {
+    "url": "https://www.dailymotion.com/crawler/video/xmo8jh",
+    "accept": false,
+    "why": "crawler"
+  },
+  {
+    "url": "https://www.dailymotion.com/swf/video/xmo8jh",
+    "accept": false,
+    "why": "swf"
+  },
+  {
+    "url": "https://www.dailymotion.com/player.html?video=xmo8jh",
+    "accept": false,
+    "why": "player"
+  },
+  {
+    "url": "https://www.dailymotion.com/playlist/x7wdsj",
+    "accept": false,
+    "why": "playlist"
+  },
+  {
+    "url": "https://www.dailymotion.com/user/someone",
+    "accept": false,
+    "why": "user"
+  },
+  {
+    "url": "https://www.dailymotion.com/search/cats/videos",
+    "accept": false,
+    "why": "search"
+  },
+  {
+    "url": "https://www.dailymotion.com/fr/video/xmo8jh",
+    "accept": false,
+    "why": "locale prefix"
+  },
+  {
+    "url": "https://www.dailymotion.com/Video/xmo8jh",
+    "accept": false,
+    "why": "case"
+  },
+  {
+    "url": "https://www.dailymotion.com/video/XMO8JH",
+    "accept": false,
+    "why": "uppercase id"
+  },
+  {
+    "url": "https://www.dailymotion.com/video/xmo8jh%2Fevil",
+    "accept": false,
+    "why": "escaped slash"
+  },
+  {
+    "url": "https://www.dailymotion.com/video/%78mo8jh",
+    "accept": false,
+    "why": "escaped id"
+  },
+  {
+    "url": "https://www.dailymotion.com/video/x",
+    "accept": false,
+    "why": "short id"
+  },
+  {
+    "url": "https://www.dailymotion.com/video/xabc",
+    "accept": false,
+    "why": "short id"
+  },
+  {
+    "url": "https://www.dailymotion.com/video/xmo8jhmo8jhm",
+    "accept": false,
+    "why": "long id"
+  },
+  {
+    "url": "https://www.dailymotion.com/video/xmo8jh_",
+    "accept": false,
+    "why": "empty slug"
+  },
+  {
+    "url": "https://www.dailymotion.com/video/xmo8jh_bad_slug",
+    "accept": false,
+    "why": "underscore slug"
+  },
+  {
+    "url": "https://www.dailymotion.com/video/xmo8jh_bad%20slug",
+    "accept": false,
+    "why": "escaped slug"
+  },
+  {
+    "url": "https://www.dailymotion.com/video/k46oCapRs4iikoz9DWy",
+    "accept": false,
+    "why": "not an x id"
+  },
+  {
+    "url": "https://www.dailymotion.com/video/xmo8jh;calc.exe",
+    "accept": false,
+    "why": "shell chars"
+  },
+  {
+    "url": "https://www.dailymotion.com/video//xmo8jh",
+    "accept": false,
+    "why": "empty segment"
+  },
+  {
+    "url": "https://www.dailymotion.com/video/xmo8jh&x=1",
+    "accept": false,
+    "why": "ampersand in path"
+  },
+  {
+    "url": "https://www.dailymotion.com/video/xmo-8jh",
+    "accept": false,
+    "why": "hyphen in id"
+  },
+  {
+    "url": "https://www.dailymotion.com/video/xmo8jh_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "accept": false,
+    "why": "long slug"
+  }
+]

@@ -10,6 +10,7 @@ elements.audioMode.addEventListener("click", () => setMode("audio"));
 elements.downloadButton.addEventListener("click", startDownload);
 elements.cancelButton.addEventListener("click", cancelDownload);
 elements.quality.addEventListener("change", renderEstimate);
+elements.thumbnail.addEventListener("error", () => setThumbnailVisible(false));
 elements.openFolderButton.addEventListener("click", openDownloadFolder);
 elements.newDownloadButton.addEventListener("click", async () => {
   jobId = null;
@@ -74,8 +75,10 @@ function renderVideo(video) {
   elements.currentUrl.textContent = video.url;
   if (isSafeThumbnail(video.thumbnail)) {
     elements.thumbnail.src = video.thumbnail;
+    setThumbnailVisible(true);
   } else {
     elements.thumbnail.removeAttribute("src");
+    setThumbnailVisible(false);
   }
   elements.quality.replaceChildren(option("best", "Best available"));
   for (const resolution of video.qualities || []) {
@@ -93,6 +96,13 @@ function renderVideo(video) {
   const preferred = elements.quality.dataset.preferred;
   if ([...elements.quality.options].some((item) => item.value === preferred)) elements.quality.value = preferred;
   renderEstimate();
+}
+
+// Show the image only when there is a safe, loadable thumbnail; otherwise show
+// a neutral placeholder so the browser's broken-image icon never appears.
+function setThumbnailVisible(visible) {
+  elements.thumbnail.classList.toggle("hidden", !visible);
+  elements.thumbnailPlaceholder.classList.toggle("hidden", visible);
 }
 
 function renderEstimate() {
@@ -170,9 +180,17 @@ function renderProgress(job) {
   elements.statusText.textContent = labels[job.state] || "Working…";
   elements.percentText.textContent = `${percent.toFixed(percent % 1 ? 1 : 0)}%`;
   elements.progressBar.style.width = `${percent}%`;
-  elements.speedText.textContent = job.speed || "";
-  const byteProgress = job.downloadedBytes > 0 && job.totalBytes > 0 ? `${formatBytes(job.downloadedBytes)} / ${formatBytes(job.totalBytes)}` : "";
-  elements.etaText.textContent = [byteProgress, job.eta ? `ETA ${job.eta}` : ""].filter(Boolean).join(" · ");
+  // A finished download has no live transfer rate or time remaining; the last
+  // values yt-dlp reported (for example "ETA 00:00") would be stale.
+  const finished = job.state === "finished";
+  elements.speedText.textContent = finished ? "" : job.speed || "";
+  // Once finished, show the real size of the saved file. The running
+  // "downloaded / total" figures come from the downloader's progress text and
+  // can be estimates (HLS), so they are not repeated as a final size.
+  const byteProgress = job.state === "finished" && job.outputBytes > 0
+    ? `Final file size: ${formatBytes(job.outputBytes).replace(/ ([KMGT])B$/, " $1iB")} (${job.outputBytes.toLocaleString("en-US")} bytes)`
+    : job.downloadedBytes > 0 && job.totalBytes > 0 ? `${formatBytes(job.downloadedBytes)} / ${formatBytes(job.totalBytes)}` : "";
+  elements.etaText.textContent = [byteProgress, !finished && job.eta ? `ETA ${job.eta}` : ""].filter(Boolean).join(" · ");
   elements.outputText.textContent = job.error || (job.outputPath ? `Saved as ${fileName(job.outputPath)}` : "");
   const done = ["finished", "cancelled", "failed"].includes(job.state);
   elements.cancelButton.classList.toggle("hidden", done);
@@ -184,7 +202,7 @@ function renderProgress(job) {
 function parseMediaUrl(value) {
   try {
     const url = new URL(value);
-    if (url.protocol !== "https:") throw new Error("Open a supported YouTube video or public Twitch clip/VOD, then click FramePier again.");
+    if (url.protocol !== "https:") throw new Error("Open a supported YouTube video, public Twitch clip/VOD, or public Dailymotion video, then click FramePier again.");
     const host = url.hostname.toLowerCase();
     let videoId = "";
     if (host === "youtu.be") videoId = url.pathname.split("/").filter(Boolean)[0] || "";
@@ -213,10 +231,27 @@ function parseMediaUrl(value) {
       }
       throw new Error("This Twitch page is not a supported clip or VOD.");
     }
-    throw new Error("Open a supported YouTube video or public Twitch clip/VOD, then click FramePier again.");
+
+    if (["dailymotion.com", "www.dailymotion.com"].includes(host)) {
+      // Mirrors validateParsedDailymotionURL in helper/src/url_validation.go.
+      // The canonical URL is rebuilt from the validated ID; the slug, query
+      // string and fragment are never forwarded.
+      if (url.username || url.password || url.port) throw new Error("This Dailymotion page is not a supported public video.");
+      const parts = url.pathname.replace(/^\/+|\/+$/g, "").split("/");
+      if (parts.length === 2 && parts[0] === "video") {
+        const separator = parts[1].indexOf("_");
+        const id = separator < 0 ? parts[1] : parts[1].slice(0, separator);
+        const slug = separator < 0 ? null : parts[1].slice(separator + 1);
+        if (/^x[0-9a-z]{4,10}$/.test(id) && (slug === null || /^[A-Za-z0-9-]{1,200}$/.test(slug))) {
+          return { videoId: id, url: `https://www.dailymotion.com/video/${id}`, source: "dailymotion" };
+        }
+      }
+      throw new Error("This Dailymotion page is not a supported public video.");
+    }
+    throw new Error("Open a supported YouTube video, public Twitch clip/VOD, or public Dailymotion video, then click FramePier again.");
   } catch (error) {
-    if (error instanceof Error && /Twitch|supported YouTube/.test(error.message)) throw error;
-    throw new Error("Open a supported YouTube video or public Twitch clip/VOD, then click FramePier again.");
+    if (error instanceof Error && /Twitch|Dailymotion|supported YouTube/.test(error.message)) throw error;
+    throw new Error("Open a supported YouTube video, public Twitch clip/VOD, or public Dailymotion video, then click FramePier again.");
   }
 }
 

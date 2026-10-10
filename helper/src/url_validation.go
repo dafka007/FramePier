@@ -10,9 +10,10 @@ import (
 type mediaSource string
 
 const (
-	sourceYouTube    mediaSource = "youtube"
-	sourceTwitchClip mediaSource = "twitch_clip"
-	sourceTwitchVOD  mediaSource = "twitch_vod"
+	sourceYouTube     mediaSource = "youtube"
+	sourceTwitchClip  mediaSource = "twitch_clip"
+	sourceTwitchVOD   mediaSource = "twitch_vod"
+	sourceDailymotion mediaSource = "dailymotion"
 )
 
 type mediaTarget struct {
@@ -25,6 +26,10 @@ var (
 	twitchClipIDPattern  = regexp.MustCompile(`^[A-Za-z0-9_-]{6,100}$`)
 	twitchChannelPattern = regexp.MustCompile(`^[A-Za-z0-9_]{1,25}$`)
 	twitchVODIDPattern   = regexp.MustCompile(`^[0-9]{1,20}$`)
+	// Dailymotion video IDs are "x" followed by lowercase base36. The optional
+	// slug that older share links append after "_" is validated and discarded.
+	dailymotionIDPattern   = regexp.MustCompile(`^x[0-9a-z]{4,10}$`)
+	dailymotionSlugPattern = regexp.MustCompile(`^[A-Za-z0-9-]{1,200}$`)
 )
 
 func validateMediaURL(raw, suppliedID string) (mediaTarget, error) {
@@ -33,7 +38,7 @@ func validateMediaURL(raw, suppliedID string) (mediaTarget, error) {
 	}
 	parsed, err := url.ParseRequestURI(raw)
 	if err != nil || parsed.Scheme != "https" || parsed.User != nil || parsed.Port() != "" {
-		return mediaTarget{}, errors.New("Only valid HTTPS YouTube or Twitch media URLs are supported.")
+		return mediaTarget{}, errors.New("Only valid HTTPS YouTube, Twitch or Dailymotion media URLs are supported.")
 	}
 	host := strings.ToLower(strings.TrimSuffix(parsed.Hostname(), "."))
 	var target mediaTarget
@@ -42,8 +47,10 @@ func validateMediaURL(raw, suppliedID string) (mediaTarget, error) {
 		target, err = validateParsedYouTubeURL(parsed, host)
 	case "clips.twitch.tv", "twitch.tv", "www.twitch.tv", "m.twitch.tv":
 		target, err = validateParsedTwitchURL(parsed, host)
+	case "dailymotion.com", "www.dailymotion.com":
+		target, err = validateParsedDailymotionURL(parsed)
 	default:
-		err = errors.New("Only official YouTube and Twitch domains are supported.")
+		err = errors.New("Only official YouTube, Twitch and Dailymotion domains are supported.")
 	}
 	if err != nil {
 		return mediaTarget{}, err
@@ -106,6 +113,20 @@ func validateParsedTwitchURL(parsed *url.URL, host string) (mediaTarget, error) 
 	return mediaTarget{}, errors.New("This Twitch page is not a supported clip or VOD.")
 }
 
+// validateParsedDailymotionURL accepts only public single-video pages of the
+// form /video/<id> or the legacy /video/<id>_<slug>. Query strings are ignored
+// and never forwarded; the canonical URL is rebuilt from the validated ID.
+func validateParsedDailymotionURL(parsed *url.URL) (mediaTarget, error) {
+	parts := pathParts(parsed.EscapedPath())
+	if len(parts) == 2 && parts[0] == "video" {
+		id, slug, hasSlug := strings.Cut(parts[1], "_")
+		if dailymotionIDPattern.MatchString(id) && (!hasSlug || dailymotionSlugPattern.MatchString(slug)) {
+			return mediaTarget{CanonicalURL: "https://www.dailymotion.com/video/" + id, ID: id, Source: sourceDailymotion}, nil
+		}
+	}
+	return mediaTarget{}, errors.New("This Dailymotion page is not a supported public video.")
+}
+
 func pathParts(value string) []string {
 	trimmed := strings.Trim(value, "/")
 	if trimmed == "" {
@@ -131,6 +152,8 @@ func sourceLabel(source mediaSource) string {
 		return "Twitch Clip"
 	case sourceTwitchVOD:
 		return "Twitch VOD"
+	case sourceDailymotion:
+		return "Dailymotion"
 	default:
 		return "YouTube"
 	}

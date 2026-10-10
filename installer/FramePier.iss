@@ -1,5 +1,5 @@
 #define AppName "FramePier"
-#define AppVersion "0.2.2"
+#define AppVersion "0.2.3"
 #define Publisher "FramePier"
 #define AppExeName "FramePierHelper.exe"
 
@@ -37,6 +37,7 @@ Source: "..\dist\helper\FramePierHelper.exe"; DestName: "FramePierLifecycle.exe"
 Source: "..\dist\helper\tools\yt-dlp.exe"; DestDir: "{app}\tools"; Flags: ignoreversion restartreplace uninsrestartdelete
 Source: "..\dist\helper\tools\ffmpeg.exe"; DestDir: "{app}\tools"; Flags: ignoreversion restartreplace uninsrestartdelete
 Source: "..\dist\helper\tools\ffprobe.exe"; DestDir: "{app}\tools"; Flags: ignoreversion restartreplace uninsrestartdelete
+Source: "..\dist\helper\tools\deno.exe"; DestDir: "{app}\tools"; Flags: ignoreversion restartreplace uninsrestartdelete
 Source: "..\extension\*"; DestDir: "{app}\Extension"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "package-version.json"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\assets\FramePier.ico"; DestDir: "{app}"; Flags: ignoreversion
@@ -277,6 +278,7 @@ begin
       'Native Helper: Installed' + #13#10 +
       'yt-dlp: Installed' + #13#10 +
       'FFmpeg: Installed' + #13#10 +
+      'JavaScript runtime (Deno): Installed' + #13#10 +
       'Extension files: Updated in place' + #13#10 + #13#10 +
       'FramePier requests a supported extension reload when an active older build detects this installed package. If the browser keeps stale unpacked code, completely exit and reopen it; click Reload only as a final fallback.' + #13#10 + #13#10 +
       'Use the optional browser setup action below only when initial extension approval or manual fallback is required.';

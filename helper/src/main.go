@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	version          = "0.2.2"
+	version          = "0.2.3"
 	maxMessageSize   = 1024 * 1024
 	maxJobs          = 2
 	maxCompletedJobs = 100
@@ -70,8 +70,12 @@ type job struct {
 	ETA             string  `json:"eta,omitempty"`
 	DownloadedBytes int64   `json:"downloadedBytes,omitempty"`
 	TotalBytes      int64   `json:"totalBytes,omitempty"`
-	OutputPath      string  `json:"outputPath,omitempty"`
-	Error           string  `json:"error,omitempty"`
+	// OutputBytes is the size of the verified final file, set only when a job
+	// finishes. DownloadedBytes/TotalBytes are derived from yt-dlp's progress
+	// text (estimates for HLS) and are not the output size.
+	OutputBytes     int64  `json:"outputBytes,omitempty"`
+	OutputPath      string `json:"outputPath,omitempty"`
+	Error           string `json:"error,omitempty"`
 	cancelRequested bool
 	cancel          context.CancelFunc
 	processJob      *processJob
@@ -90,6 +94,7 @@ type app struct {
 	logger      *log.Logger
 	out         io.Writer
 	runtimePath string
+	js          jsRuntimeCache
 }
 
 func main() {
@@ -336,9 +341,16 @@ func (a *app) videoInfo(req request, base response) {
 		a.send(base)
 		return
 	}
+	runtimePath, err := a.js.runtimeFor(a.root, target.Source)
+	if err != nil {
+		a.logger.Printf("js_runtime_unavailable command=get_video_info source=%s", target.Source)
+		base["ok"], base["error"] = false, err.Error()
+		a.send(base)
+		return
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), 90*time.Second)
 	defer cancel()
-	cmd := newHiddenCommandContext(ctx, ytdlp, "--dump-single-json", "--no-playlist", "--no-warnings", "--skip-download", target.CanonicalURL)
+	cmd := newYtdlpCommandContext(ctx, ytdlp, runtimePath, target.Source, "--dump-single-json", "--no-playlist", "--no-warnings", "--skip-download", target.CanonicalURL)
 	cmd.Dir = a.root
 	output, err := cmd.Output()
 	if err != nil {
@@ -358,11 +370,25 @@ func (a *app) videoInfo(req request, base response) {
 		Thumbnail  string        `json:"thumbnail"`
 		UploadDate string        `json:"upload_date"`
 		Formats    []mediaFormat `json:"formats"`
+		IsLive     bool          `json:"is_live"`
+		Extractor  string        `json:"extractor_key"`
 	}
 	if err := json.Unmarshal(output, &info); err != nil || !metadataMatchesTarget(info.ID, info.DisplayID, target) {
 		base["ok"], base["error"] = false, "The downloader returned invalid metadata."
 		a.send(base)
 		return
+	}
+	if target.Source == sourceDailymotion {
+		if info.Extractor != "Dailymotion" {
+			base["ok"], base["error"] = false, "The downloader returned invalid metadata."
+			a.send(base)
+			return
+		}
+		if info.IsLive {
+			base["ok"], base["error"] = false, msgDailymotionLive
+			a.send(base)
+			return
+		}
 	}
 	info.Formats = normalizeFormats(info.Formats)
 	audioExt := map[string]bool{}
@@ -392,7 +418,7 @@ func (a *app) videoInfo(req request, base response) {
 			approx = quality.ApproxBytes
 		}
 	}
-	base["video"] = response{"id": target.ID, "title": info.Title, "channel": channel, "creator": info.Creator, "duration": info.Duration, "thumbnail": info.Thumbnail, "uploadDate": info.UploadDate, "url": target.CanonicalURL, "source": string(target.Source), "sourceLabel": sourceLabel(target.Source), "qualities": q, "audioFormats": audioExt, "approxBytes": approx}
+	base["video"] = response{"id": target.ID, "title": info.Title, "channel": channel, "creator": info.Creator, "duration": info.Duration, "thumbnail": thumbnailForSource(target.Source, info.Thumbnail), "uploadDate": info.UploadDate, "url": target.CanonicalURL, "source": string(target.Source), "sourceLabel": sourceLabel(target.Source), "qualities": q, "audioFormats": audioExt, "approxBytes": approx}
 	a.send(base)
 }
 
@@ -446,7 +472,16 @@ func (a *app) startDownload(req request, base response) {
 		a.send(base)
 		return
 	}
-	if req.Mode == "video" || (req.Mode == "audio" && (req.AudioFormat != "best" || target.Source == sourceTwitchClip)) {
+	runtimePath, err := a.js.runtimeFor(a.root, target.Source)
+	if err != nil {
+		cancel()
+		a.logger.Printf("js_runtime_unavailable command=start_download source=%s", target.Source)
+		a.finishJob(j, "failed", "", err.Error())
+		base["ok"], base["error"] = false, err.Error()
+		a.send(base)
+		return
+	}
+	if req.Mode == "video" || (req.Mode == "audio" && (req.AudioFormat != "best" || hasCombinedFormats(target.Source))) {
 		if _, err := a.toolPath("ffmpeg.exe"); err != nil {
 			cancel()
 			a.finishJob(j, "failed", "", "ffmpeg is required for this format.")
@@ -460,11 +495,55 @@ func (a *app) startDownload(req request, base response) {
 	a.jobsWG.Add(1)
 	go func() {
 		defer a.jobsWG.Done()
-		a.runDownload(ctx, j, ytdlp, target, req)
+		a.runDownload(ctx, j, ytdlp, runtimePath, target, req)
 	}()
 }
 
-func (a *app) runDownload(ctx context.Context, j *job, ytdlp string, target mediaTarget, req request) {
+// audioDownloadArgs returns the format and extraction options for an
+// audio-only download. Sources whose streams are combined (Twitch clips,
+// Dailymotion) have no audio-only stream, so audio is always extracted from
+// the combined stream with FFmpeg.
+func audioDownloadArgs(source mediaSource, audioFormat string) []string {
+	var args []string
+	switch audioFormat {
+	case "mp3":
+		if hasCombinedFormats(source) {
+			args = append(args, "--format", "best")
+		}
+		args = append(args, "--extract-audio", "--audio-format", "mp3", "--audio-quality", "0")
+	case "m4a":
+		if hasCombinedFormats(source) {
+			args = append(args, "--format", "best")
+		} else if source == sourceYouTube {
+			args = append(args, "--format", "bestaudio[ext=m4a]/bestaudio")
+		} else {
+			args = append(args, "--format", "bestaudio")
+		}
+		args = append(args, "--extract-audio", "--audio-format", "m4a")
+	default:
+		if hasCombinedFormats(source) {
+			args = append(args, "--format", "best", "--extract-audio", "--audio-format", "m4a")
+		} else {
+			args = append(args, "--format", "bestaudio")
+		}
+	}
+	return args
+}
+
+// baseVideoSelector returns the yt-dlp format selector for a video download
+// that does not need per-format metadata, or needsMetadata=true when an
+// explicit quality must be resolved to a concrete format first.
+func baseVideoSelector(source mediaSource, container, quality string) (selector string, needsMetadata bool) {
+	if source != sourceYouTube && quality == "best" {
+		return "best", false
+	}
+	if container == "mp4" && quality == "best" {
+		return "bestvideo*[ext=mp4][vcodec^=avc1]+bestaudio[ext=m4a]/bestvideo*[ext=mp4][vcodec^=av01]+bestaudio[ext=m4a]/bestvideo*[ext=mp4][vcodec^=hvc1]+bestaudio[ext=m4a]/bestvideo*[ext=mp4][vcodec^=hev1]+bestaudio[ext=m4a]/best[ext=mp4]/best", false
+	}
+	return "bestvideo*+bestaudio/best", quality != "best"
+}
+
+func (a *app) runDownload(ctx context.Context, j *job, ytdlp, runtimePath string, target mediaTarget, req request) {
 	defer j.cancel()
 	a.mu.RLock()
 	currentSettings := a.settings
@@ -512,7 +591,7 @@ func (a *app) runDownload(ctx context.Context, j *job, ytdlp string, target medi
 		a.mu.Unlock()
 		a.send(response{"event": "progress", "job": snapshot})
 		var metadataErr error
-		sourceMetadata, metadataErr = loadVideoMetadata(ctx, ytdlp, a.root, target.CanonicalURL)
+		sourceMetadata, metadataErr = loadVideoMetadata(ctx, ytdlp, runtimePath, target.Source, a.root, target.CanonicalURL)
 		if metadataErr != nil {
 			a.finishJob(j, "failed", "", friendlyMediaError("Could not retrieve Twitch VOD formats", metadataErr, target.Source))
 			return
@@ -531,40 +610,19 @@ func (a *app) runDownload(ctx context.Context, j *job, ytdlp string, target medi
 	if ffmpegPath, err := a.toolPath("ffmpeg.exe"); err == nil {
 		args = append(args, "--ffmpeg-location", filepath.Dir(ffmpegPath))
 	}
+	if target.Source == sourceDailymotion {
+		// Live streams are not supported; never start an open-ended HLS download.
+		args = append(args, "--match-filters", "!is_live")
+	}
 	if req.Mode == "audio" {
-		switch req.AudioFormat {
-		case "mp3":
-			if target.Source == sourceTwitchClip {
-				args = append(args, "--format", "best")
-			}
-			args = append(args, "--extract-audio", "--audio-format", "mp3", "--audio-quality", "0")
-		case "m4a":
-			if target.Source == sourceTwitchClip {
-				args = append(args, "--format", "best")
-			} else if target.Source == sourceYouTube {
-				args = append(args, "--format", "bestaudio[ext=m4a]/bestaudio")
-			} else {
-				args = append(args, "--format", "bestaudio")
-			}
-			args = append(args, "--extract-audio", "--audio-format", "m4a")
-		default:
-			if target.Source == sourceTwitchClip {
-				args = append(args, "--format", "best", "--extract-audio", "--audio-format", "m4a")
-			} else {
-				args = append(args, "--format", "bestaudio")
-			}
-		}
+		args = append(args, audioDownloadArgs(target.Source, req.AudioFormat)...)
 	} else {
-		selector := "bestvideo*+bestaudio/best"
-		if target.Source != sourceYouTube && req.Quality == "best" {
-			selector = "best"
-		} else if req.Container == "mp4" && req.Quality == "best" {
-			selector = "bestvideo*[ext=mp4][vcodec^=avc1]+bestaudio[ext=m4a]/bestvideo*[ext=mp4][vcodec^=av01]+bestaudio[ext=m4a]/bestvideo*[ext=mp4][vcodec^=hvc1]+bestaudio[ext=m4a]/bestvideo*[ext=mp4][vcodec^=hev1]+bestaudio[ext=m4a]/best[ext=mp4]/best"
-		} else if req.Quality != "best" {
+		selector, needsMetadata := baseVideoSelector(target.Source, req.Container, req.Quality)
+		if needsMetadata {
 			metadata := sourceMetadata
 			var err error
 			if !metadataLoaded {
-				metadata, err = loadVideoMetadata(ctx, ytdlp, a.root, target.CanonicalURL)
+				metadata, err = loadVideoMetadata(ctx, ytdlp, runtimePath, target.Source, a.root, target.CanonicalURL)
 			}
 			if err != nil {
 				a.finishJob(j, "failed", "", friendlyMediaError("Could not retrieve formats for the selected quality", err, target.Source))
@@ -583,7 +641,7 @@ func (a *app) runDownload(ctx context.Context, j *job, ytdlp string, target medi
 				return
 			}
 			selectedAudio := mediaFormat{}
-			if target.Source != sourceTwitchClip && (selected.ACodec == "" || selected.ACodec == "none") {
+			if !hasCombinedFormats(target.Source) && (selected.ACodec == "" || selected.ACodec == "none") {
 				selectedAudio, err = selectAudioFormat(metadata.Formats, req.Container, target.Source)
 				if err != nil {
 					a.finishJob(j, "failed", "", err.Error()+".")
@@ -605,7 +663,7 @@ func (a *app) runDownload(ctx context.Context, j *job, ytdlp string, target medi
 		}
 	}
 	args = append(args, target.CanonicalURL)
-	cmd := newHiddenCommandContext(ctx, ytdlp, args...)
+	cmd := newYtdlpCommandContext(ctx, ytdlp, runtimePath, target.Source, args...)
 	cmd.Dir = a.root
 	cmd.Env = append(os.Environ(), "PYTHONUTF8=1")
 	stdout, err := cmd.StdoutPipe()
@@ -777,7 +835,7 @@ func (a *app) parseProgress(j *job, line string) {
 	j.State = state
 	if m := percentPattern.FindStringSubmatch(line); len(m) == 2 {
 		if p, err := strconv.ParseFloat(m[1], 64); err == nil && p >= 0 && p <= 100 {
-			if j.source != sourceTwitchVOD || p >= j.Percent {
+			if !estimatesHLSProgress(j.source) || p >= j.Percent {
 				j.Percent = p
 			}
 		}
@@ -790,7 +848,7 @@ func (a *app) parseProgress(j *job, line string) {
 	}
 	if m := totalSizePattern.FindStringSubmatch(line); len(m) == 3 {
 		if total, ok := parseByteSize(m[1], m[2]); ok {
-			if j.source != sourceTwitchVOD || total > j.TotalBytes {
+			if !estimatesHLSProgress(j.source) || total > j.TotalBytes {
 				j.TotalBytes = total
 			}
 			j.DownloadedBytes = int64(float64(j.TotalBytes) * j.Percent / 100)
@@ -816,6 +874,12 @@ func parseByteSize(number, unit string) (int64, bool) {
 }
 
 func (a *app) finishJob(j *job, state, outputPath, errorMessage string) {
+	var outputBytes int64
+	if state == "finished" && outputPath != "" {
+		if info, err := os.Stat(outputPath); err == nil && info.Mode().IsRegular() {
+			outputBytes = info.Size()
+		}
+	}
 	a.mu.Lock()
 	if j.cancelRequested && state == "failed" {
 		state, errorMessage = "cancelled", ""
@@ -825,6 +889,7 @@ func (a *app) finishJob(j *job, state, outputPath, errorMessage string) {
 	a.pruneCompletedJobs()
 	if state == "finished" {
 		j.Percent = 100
+		j.OutputBytes = outputBytes
 	}
 	snapshot := *j
 	a.mu.Unlock()
@@ -947,9 +1012,10 @@ func (a *app) versions() response {
 	ytdlpPath, ytdlpErr := a.toolPath("yt-dlp.exe")
 	ffmpegPath, ffmpegErr := a.toolPath("ffmpeg.exe")
 	result := response{
-		"helper": response{"installed": true, "version": version},
-		"ytDlp":  response{"installed": ytdlpErr == nil, "version": commandVersion(ytdlpPath, "--version")},
-		"ffmpeg": response{"installed": ffmpegErr == nil, "version": firstLine(commandVersion(ffmpegPath, "-version"))},
+		"helper":    response{"installed": true, "version": version},
+		"ytDlp":     response{"installed": ytdlpErr == nil, "version": commandVersion(ytdlpPath, "--version")},
+		"ffmpeg":    response{"installed": ffmpegErr == nil, "version": firstLine(commandVersion(ffmpegPath, "-version"))},
+		"jsRuntime": a.js.status(a.root),
 	}
 	if packageVersion := installedPackageVersion(a.root); packageVersion != "" {
 		result["extensionPackage"] = response{"installed": true, "version": packageVersion}
@@ -960,7 +1026,7 @@ func (a *app) versions() response {
 func (a *app) updateYTDLP(base response) {
 	path, err := a.toolPath("yt-dlp.exe")
 	if err == nil {
-		cmd := newHiddenCommand(path, "-U")
+		cmd := newYtdlpCommand(path, "-U")
 		cmd.Dir = filepath.Dir(path)
 		var out []byte
 		out, err = cmd.CombinedOutput()
@@ -1122,6 +1188,25 @@ func friendlyProcessError(prefix string, err error) string {
 	return prefix + "."
 }
 
+// estimatesHLSProgress reports whether yt-dlp's percent and total size for the
+// source are estimates derived from HLS fragment counts, which can move
+// backwards as fragments are discovered. Progress is then kept monotonic.
+func estimatesHLSProgress(source mediaSource) bool {
+	return source == sourceTwitchVOD || source == sourceDailymotion
+}
+
+const msgDailymotionLive = "Live Dailymotion streams are not supported. Public Dailymotion videos are supported."
+
+// thumbnailForSource returns the thumbnail URL the extension may display.
+// Dailymotion thumbnails are intentionally omitted: their CDN host has not been
+// verified and the extension's image policy is not widened for them.
+func thumbnailForSource(source mediaSource, value string) string {
+	if source == sourceDailymotion {
+		return ""
+	}
+	return value
+}
+
 func metadataMatchesTarget(id, displayID string, target mediaTarget) bool {
 	switch target.Source {
 	case sourceTwitchClip:
@@ -1146,6 +1231,12 @@ func friendlyMediaError(prefix string, err error, source mediaSource) string {
 
 func friendlyMediaDiagnostic(prefix, diagnostic string, source mediaSource) string {
 	diagnostic = strings.ToLower(diagnostic)
+	if source == sourceYouTube && (strings.Contains(diagnostic, "javascript runtime") || strings.Contains(diagnostic, "js runtime") || strings.Contains(diagnostic, "challenge solving")) {
+		return msgJSRuntimeUnavailable
+	}
+	if source == sourceDailymotion {
+		return friendlyDailymotionDiagnostic(diagnostic)
+	}
 	if source == sourceTwitchClip || source == sourceTwitchVOD {
 		if strings.Contains(diagnostic, "subscriber") || strings.Contains(diagnostic, "authentication") || strings.Contains(diagnostic, "log in") || strings.Contains(diagnostic, "login") {
 			return "This Twitch video is not publicly available without authentication."
@@ -1165,6 +1256,39 @@ func friendlyMediaDiagnostic(prefix, diagnostic string, source mediaSource) stri
 		if strings.Contains(diagnostic, "network") || strings.Contains(diagnostic, "timed out") || strings.Contains(diagnostic, "unable to download") {
 			return "Could not reach Twitch. Check the network connection and try again."
 		}
+	}
+	return ""
+}
+
+// friendlyDailymotionDiagnostic maps lower-cased yt-dlp diagnostics to fixed,
+// path-free messages. The patterns are heuristics; unmatched output falls back
+// to the generic message.
+func friendlyDailymotionDiagnostic(diagnostic string) string {
+	has := func(words ...string) bool {
+		for _, word := range words {
+			if strings.Contains(diagnostic, word) {
+				return true
+			}
+		}
+		return false
+	}
+	switch {
+	case has("geo restrict", "geo-restrict", "geoblock", "not available in your country", "not available from your location"):
+		return "This Dailymotion video is not available in your region."
+	case has("password", "private video", "log in", "login", "sign in", "authentication", "age-restricted", "age restricted"):
+		return "This Dailymotion video is not publicly available without signing in."
+	case has("drm", "widevine", "playready", "fairplay"):
+		return "This Dailymotion video is protected and cannot be downloaded."
+	case has("video gone", "no longer available", "does not exist", "has been deleted", "http error 404"):
+		return "This Dailymotion video is no longer available."
+	case has("no video formats", "requested format is not available"):
+		return "No downloadable format is available for this Dailymotion video."
+	case has("http error 429", "rate limit", "too many requests"):
+		return "Dailymotion temporarily rate-limited this request. Try again later."
+	case has("http error 403", "forbidden"):
+		return "Dailymotion declined this request. Try again later."
+	case has("network", "timed out", "unable to download", "connection"):
+		return "Could not reach Dailymotion. Check the network connection and try again."
 	}
 	return ""
 }

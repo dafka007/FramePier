@@ -2,6 +2,32 @@
 
 All notable changes to FramePier are documented here. Versions follow Semantic Versioning.
 
+## [Unreleased]
+
+### Added
+
+- Bundled the Deno 2.9.7 JavaScript runtime (hash-pinned, verified against the checksum published with the official release) so yt-dlp can solve YouTube's extraction challenges without relying on anything installed on the PC.
+- Settings now shows the JavaScript runtime status. If the runtime is missing or not working, YouTube requests fail with a clear message to reinstall FramePier; Twitch and Dailymotion are unaffected.
+
+- Public Dailymotion video support (`dailymotion.com/video/<id>`): combined HLS qualities, MP4/MKV by remux, and FFmpeg audio extraction, using yt-dlp's dedicated Dailymotion extractor. It needs no JavaScript runtime, shows no thumbnail, adds no extension permissions, and rejects live streams, playlists, embeds, short links and other Dailymotion hosts.
+
+### Fixed
+
+- A finished download now shows the real size of the saved file ("Final file size") instead of the downloader's running total, which for HLS downloads is an estimate and could be several times the actual size.
+- When a video has no safe thumbnail (for example Dailymotion), the popup shows a neutral placeholder instead of a broken-image icon.
+
+### Changed
+
+- Every yt-dlp process is now created by one helper that always passes `--ignore-config`, `--no-plugin-dirs`, `--no-remote-components` and `--no-js-runtimes`, then enables only the bundled Deno by absolute path for YouTube. User-level yt-dlp configuration, plugins, remotely fetched components and runtimes found on PATH are no longer used.
+
+## [0.2.3] - 2026-09-20
+
+### Changed
+
+- Upgraded FFmpeg from Gyan 8.1.1 (GPL) to BtbN 8.1.2 LGPL-3.0 build (`autobuild-2026-08-31-13-27`), fixing CVE-2026-8461 (CVSS 8.8) and CVE-2026-30999.
+- Updated build script to pin the immutable BtbN release-tag URL with SHA-256 verification on both the archive and extracted binaries.
+- Updated `THIRD_PARTY_NOTICES.md` to document the BtbN provider, build-repo commit, FFmpeg source commit, and LGPL-3.0 licensing.
+
 ## [0.2.2] - 2026-09-05
 
 ### Fixed
