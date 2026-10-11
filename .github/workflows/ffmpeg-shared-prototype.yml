@@ -45,7 +45,7 @@ jobs:
           echo "ddfe36cab873794038ae2c1210557ad34857a4b6bdc515785d1da9e175b1da1e  lame-3.100.tar.gz" | sha256sum -c -
           tar -xzf lame-3.100.tar.gz
           cd lame-3.100
-          ./configure --prefix=/ucrt64 --enable-shared --disable-static --disable-frontend --disable-decoder
+          ./configure --prefix=/ucrt64 --enable-shared --disable-static --disable-frontend
           make -j4
           make install
           cd ..
