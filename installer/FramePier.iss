@@ -37,6 +37,15 @@ Source: "..\dist\helper\FramePierHelper.exe"; DestName: "FramePierLifecycle.exe"
 Source: "..\dist\helper\tools\yt-dlp.exe"; DestDir: "{app}\tools"; Flags: ignoreversion restartreplace uninsrestartdelete
 Source: "..\dist\helper\tools\ffmpeg.exe"; DestDir: "{app}\tools"; Flags: ignoreversion restartreplace uninsrestartdelete
 Source: "..\dist\helper\tools\ffprobe.exe"; DestDir: "{app}\tools"; Flags: ignoreversion restartreplace uninsrestartdelete
+Source: "..\dist\helper\tools\avcodec-62.dll"; DestDir: "{app}\tools"; Flags: ignoreversion restartreplace uninsrestartdelete
+Source: "..\dist\helper\tools\avdevice-62.dll"; DestDir: "{app}\tools"; Flags: ignoreversion restartreplace uninsrestartdelete
+Source: "..\dist\helper\tools\avfilter-11.dll"; DestDir: "{app}\tools"; Flags: ignoreversion restartreplace uninsrestartdelete
+Source: "..\dist\helper\tools\avformat-62.dll"; DestDir: "{app}\tools"; Flags: ignoreversion restartreplace uninsrestartdelete
+Source: "..\dist\helper\tools\avutil-60.dll"; DestDir: "{app}\tools"; Flags: ignoreversion restartreplace uninsrestartdelete
+Source: "..\dist\helper\tools\libmp3lame-0.dll"; DestDir: "{app}\tools"; Flags: ignoreversion restartreplace uninsrestartdelete
+Source: "..\dist\helper\tools\libwinpthread-1.dll"; DestDir: "{app}\tools"; Flags: ignoreversion restartreplace uninsrestartdelete
+Source: "..\dist\helper\tools\swresample-6.dll"; DestDir: "{app}\tools"; Flags: ignoreversion restartreplace uninsrestartdelete
+Source: "..\dist\helper\tools\swscale-9.dll"; DestDir: "{app}\tools"; Flags: ignoreversion restartreplace uninsrestartdelete
 Source: "..\dist\helper\tools\deno.exe"; DestDir: "{app}\tools"; Flags: ignoreversion restartreplace uninsrestartdelete
 Source: "..\extension\*"; DestDir: "{app}\Extension"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "package-version.json"; DestDir: "{app}"; Flags: ignoreversion

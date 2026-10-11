@@ -1,0 +1,27 @@
+FramePier 0.2.3 - where the source for bundled components is published
+=====================================================================
+
+The FramePier installer is distributed from its GitHub releases page:
+https://github.com/dafka007/FramePier/releases
+The corresponding source for the GPL- and LGPL-licensed components is published as assets on that
+same release page, next to the installer, and is available for as long as the installer is.
+It can be downloaded from there without charge.
+
+FramePier-0.2.3-FFmpeg-LAME-Source.zip   SHA-256 61b8539d5866b899ca173a7edb71502ff78d0b090500990f7442f36b54b1327a
+  FFmpeg (ffmpeg.exe, ffprobe.exe, the avcodec/avdevice/avfilter/avformat/avutil/swresample/swscale DLLs;
+  LGPL-2.1-or-later) at commit 1a748fe2cd43e3ead22fafb1b5b7d77f153898a8, LAME 3.100 (libmp3lame-0.dll; LGPL),
+  BUILD-INSTRUCTIONS.txt, configuration, package versions, build workflow and license texts.
+  The FFmpeg and LAME libraries are separate DLLs in the tools folder and can be replaced by rebuilt ones.
+
+FramePier-0.2.3-YtDlp-Source.zip         SHA-256 821539ef5b1bf853d1c9cc4a7d2860b7fa9350cbf5ebcb76e2d39629a889db6e
+  yt-dlp 2026.08.19 (tools\yt-dlp.exe, conveyed under the GNU GPL version 3, licenses\GPL-3.0.txt):
+  yt-dlp source, the build workflow and its evidence, CPython 3.13.16 and its linked libraries (OpenSSL 3.5.9
+  and others), mutagen, certifi, PyInstaller and the other bundled Python packages. Its README.txt lists the contents
+  and what is not covered. The executable is FramePier's build (SHA-256 8b976e7ff71a6f8e8dd48feb2920b3c41a44641ffe192dba08cde0175890ee44), not upstream's asset.
+
+Deno 2.9.7 (tools\deno.exe, MIT): https://github.com/denoland/deno, tag v2.9.7. Its MPL-2.0 Rust crates (cooked-waker 5.0.0,
+cssparser 0.36.0, cssparser-macros 0.6.1, dtoa-short 0.3.5, smartstring 1.0.1, webpki-roots 0.26.1, webpki-root-certs 0.26.6) are
+unmodified and their source is at https://crates.io/crates/<name>/<version>; Deno's Cargo.lock names every crate version.
+winpthreads and the MinGW-w64 runtime (permissive): WINPTHREADS-MINGW-W64.txt, MINGW-W64-RUNTIME.txt.
+
+This file is an index. It is not a statement that every license obligation has been met.

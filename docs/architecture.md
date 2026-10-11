@@ -19,7 +19,6 @@ Supported commands:
 | `get_settings` / `set_settings` | Read or validate/save local helper settings |
 | `choose_download_folder` | Show the fixed Windows folder-only picker and return one selected local path |
 | `open_download_folder` / `open_logs_folder` | Open one helper-owned configured folder |
-| `update_ytdlp` | Run the fixed official executable's `-U` action |
 | `record_extension_update_event` | Record a closed set of validated local update diagnostics |
 
 The host manifest and helper origin check both restrict access to `chrome-extension://kclnooibijmfenaldmpkffdbednfipkk/`. The ID is derived from the public key embedded in `manifest.json`; no private signing key is stored in the repository.

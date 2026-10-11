@@ -33,7 +33,7 @@ Completed 2026-09-05 on the Windows release build.
 - Large-file handling: byte counters and estimates use 64-bit integers; VOD progress is monotonic; destination and processing-volume free space are checked before a known-size VOD download starts.
 - Overwrite behavior: `--no-overwrites`; video filenames include video ID and actual height, preventing a different requested quality from silently reusing another quality.
 - Logging: UTC timestamps, helper/job/version/action results, source type, validated media ID, and redacted diagnostics; no cookies, credentials, OAuth tokens, signed media URLs, or full requested page URLs.
-- Updates: build downloads only official Go/yt-dlp endpoints and FFmpeg from the provider linked by ffmpeg.org. Go and yt-dlp use publisher checksums; FFmpeg 8.1.1 is pinned to the SHA-256 published in the Windows Package Manager manifest. Runtime updating is the fixed `yt-dlp.exe -U` operation.
+- Updates: build downloads Go and Deno from their official endpoints (publisher checksums); yt-dlp (FramePier's OpenSSL 3 build of the pinned tag) and the shared FFmpeg build are verified local files pinned by SHA-256. There is no runtime yt-dlp updating (the `update_ytdlp` command and Settings button were removed in 0.2.3).
 - Installer: per-user Inno Setup registration is limited to FramePier's detected/selected Native Messaging keys. Repair detects newly installed supported browsers and only rewrites those same restricted keys. No extension force-install policy, browser preference, or unrelated registry setting is created.
 
 ## Tools run

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
-function settingsHarness(jsRuntime, { omitRuntime = false } = {}) {
+function settingsHarness(jsRuntime, { omitRuntime = false, ffmpegVersion = 'ffmpeg version 8.1.2-50' } = {}) {
   const html = readFileSync(new URL('../extension/settings.html', import.meta.url), 'utf8');
   const nodes = Object.fromEntries([...html.matchAll(/id="([^"]+)"/g)].map(([, id]) => [id, {
     id, textContent: '', value: '', checked: false, disabled: false, style: {}, addEventListener() {}
@@ -11,7 +11,7 @@ function settingsHarness(jsRuntime, { omitRuntime = false } = {}) {
   const versions = {
     helper: { version: '0.2.3' },
     ytDlp: { installed: true, version: '2026.08.19' },
-    ffmpeg: { installed: true, version: 'ffmpeg version 8.1.2-50' }
+    ffmpeg: { installed: true, version: ffmpegVersion }
   };
   if (!omitRuntime) versions.jsRuntime = jsRuntime;
   const context = vm.createContext({
@@ -61,4 +61,18 @@ test('Settings tolerates an older helper that reports no runtime, without breaki
   assert.equal(nodes.jsRuntimeStatus.textContent, 'Unknown');
   assert.equal(nodes.nativeStatus.textContent, 'Connected');
   assert.equal(nodes.ytdlpVersion.textContent, 'Installed · 2026.08.19');
+});
+
+test('Settings shows the abbreviated commit hash of an untagged shared FFmpeg build', async () => {
+  const { nodes, context } = settingsHarness({ installed: true, usable: true, version: '2.9.7' }, { ffmpegVersion: 'ffmpeg version 1a748fe Copyright (c) 2000-2026 the FFmpeg developers' });
+  await vm.runInContext('refresh()', context);
+  assert.equal(nodes.ffmpegVersion.textContent, 'Installed · 1a748fe');
+});
+
+test('Settings still reports an unrecognised FFmpeg version string as unknown', async () => {
+  for (const version of ['ffmpeg version N-abc', 'ffmpeg version git-2026-08-31-1a748fe', '']) {
+    const { nodes, context } = settingsHarness({ installed: true, usable: true, version: '2.9.7' }, { ffmpegVersion: version });
+    await vm.runInContext('refresh()', context);
+    assert.equal(nodes.ffmpegVersion.textContent, 'Installed · version unknown', version);
+  }
 });

@@ -1,0 +1,2 @@
+D:\a\FramePier\FramePier\ytdlp-source\dist\yt-dlp\_internal\libcrypto-3.dll
+D:\a\FramePier\FramePier\ytdlp-source\dist\yt-dlp\_internal\libssl-3.dll

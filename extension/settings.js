@@ -1,11 +1,10 @@
 const byId = (id) => document.getElementById(id);
-const ids = ["defaultQuality", "defaultContainer", "defaultAudioFormat", "downloadPath", "browseButton", "autoOpen", "saveButton", "saveStatus", "nativeStatus", "helperVersion", "ytdlpVersion", "ffmpegVersion", "jsRuntimeStatus", "extensionVersion", "browserName", "refreshButton", "updateButton", "openFolderButton", "openLogsButton"];
+const ids = ["defaultQuality", "defaultContainer", "defaultAudioFormat", "downloadPath", "browseButton", "autoOpen", "saveButton", "saveStatus", "nativeStatus", "helperVersion", "ytdlpVersion", "ffmpegVersion", "jsRuntimeStatus", "extensionVersion", "browserName", "refreshButton", "openFolderButton", "openLogsButton"];
 const el = Object.fromEntries(ids.map((id) => [id, byId(id)]));
 
 document.addEventListener("DOMContentLoaded", initialize);
 el.saveButton.addEventListener("click", save);
 el.refreshButton.addEventListener("click", refresh);
-el.updateButton.addEventListener("click", updateYTDLP);
 el.browseButton.addEventListener("click", chooseDownloadFolder);
 el.openFolderButton.addEventListener("click", () => openFolder("open_download_folder", el.openFolderButton));
 el.openLogsButton.addEventListener("click", () => openFolder("open_logs_folder", el.openLogsButton));
@@ -94,20 +93,6 @@ async function save() {
   }
 }
 
-async function updateYTDLP() {
-  el.updateButton.disabled = true;
-  setStatus("Checking for a yt-dlp update…");
-  try {
-    await native("update_ytdlp");
-    setStatus("yt-dlp update check completed.");
-    await refresh();
-  } catch (error) {
-    setStatus(error.message, true);
-  } finally {
-    el.updateButton.disabled = false;
-  }
-}
-
 function detectBrowser() {
   const ua = navigator.userAgent;
   if (/Edg\//.test(ua)) return "Microsoft Edge";
@@ -129,7 +114,11 @@ function describeJsRuntime(runtime) {
 }
 
 function shortFFmpegVersion(value = "") {
-  return value.match(/ffmpeg version\s+([0-9]+(?:\.[0-9]+){1,3})/i)?.[1] || "version unknown";
+  // Release builds print "ffmpeg version 8.1.2[-50-g...]"; builds from an untagged commit
+  // print only the abbreviated commit hash ("ffmpeg version 1a748fe").
+  const numeric = value.match(/ffmpeg version\s+([0-9]+(?:\.[0-9]+){1,3})/i)?.[1];
+  if (numeric) return numeric;
+  return value.match(/ffmpeg version\s+([0-9a-f]{7,40})(?![0-9A-Za-z])/i)?.[1] || "version unknown";
 }
 
 async function native(command, payload = {}) {

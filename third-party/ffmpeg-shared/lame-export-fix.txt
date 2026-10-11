@@ -1,0 +1,1 @@
+LAME 3.100 export-file fix: remove lame_init_old from include/libmp3lame.sym (upstream bug #503)

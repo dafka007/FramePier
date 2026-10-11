@@ -1,0 +1,123 @@
+name: Experimental yt-dlp OpenSSL 3 Windows build
+
+on:
+  push:
+    branches:
+      - experiment/ytdlp-openssl3-ci
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    runs-on: windows-2025
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - name: Set up Python 3.13
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13.16'
+          architecture: 'x64'
+
+      - name: Fetch exact upstream yt-dlp release
+        run: |
+          $ErrorActionPreference = 'Stop'
+          git clone --depth 1 --branch 2026.08.19 https://github.com/yt-dlp/yt-dlp.git ytdlp-source
+          if ($LASTEXITCODE -ne 0) { throw 'Upstream checkout failed' }
+          $actual = (git -C ytdlp-source rev-parse HEAD).Trim()
+          $expected = '3a08beaf031ab68f966401ead017ac81fe8486cf'
+          if ($actual -ne $expected) { throw "Unexpected upstream commit: $actual" }
+          Write-Host "Verified yt-dlp release tag: $actual"
+
+      - name: Install upstream hash-locked build requirements
+        working-directory: ytdlp-source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $python = Join-Path $env:RUNNER_TEMP 'ytdlp-venv\Scripts\python.exe'
+          python -m venv (Join-Path $env:RUNNER_TEMP 'ytdlp-venv')
+          if ($LASTEXITCODE -ne 0) { throw 'venv creation failed' }
+          & $python -m pip install -U --require-hashes -r 'bundle/requirements/pip.txt'
+          if ($LASTEXITCODE -ne 0) { throw 'hash-locked pip requirement failed' }
+          & $python -m pip install -U --require-hashes -r 'bundle/requirements/win-x64-pyinstaller.txt'
+          if ($LASTEXITCODE -ne 0) { throw 'hash-locked PyInstaller requirement failed' }
+          & $python -m pip install -U --require-hashes -r 'bundle/requirements/curl-cffi.txt'
+          if ($LASTEXITCODE -ne 0) { throw 'hash-locked curl-cffi requirement failed' }
+
+      - name: Verify Python OpenSSL and record toolchain
+        working-directory: ytdlp-source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force -Path 'evidence' | Out-Null
+          $python = Join-Path $env:RUNNER_TEMP 'ytdlp-venv\Scripts\python.exe'
+          $envInfo = & $python -c "import sys,ssl,sqlite3; print(sys.version); print(ssl.OPENSSL_VERSION); print('sqlite:',sqlite3.sqlite_version)"
+          if ($LASTEXITCODE -ne 0) { throw 'Python runtime inspection failed' }
+          $envInfo | Tee-Object -FilePath 'evidence/runtime.txt'
+          $sslVersion = (& $python -c "import ssl; print(ssl.OPENSSL_VERSION)").Trim()
+          if ($sslVersion -notmatch '^OpenSSL 3\.') { throw "Expected OpenSSL 3.x, got $sslVersion" }
+          & $python -m pip freeze | Set-Content -Path 'evidence/pip-freeze.txt'
+          if ($LASTEXITCODE -ne 0) { throw 'pip freeze failed' }
+          git rev-parse HEAD | Set-Content -Path 'evidence/ytdlp-commit.txt'
+          Copy-Item 'bundle/requirements/pip.txt' 'evidence/'
+          Copy-Item 'bundle/requirements/win-x64-pyinstaller.txt' 'evidence/'
+          Copy-Item 'bundle/requirements/curl-cffi.txt' 'evidence/'
+
+      - name: Build using upstream PyInstaller recipe
+        working-directory: ytdlp-source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $python = Join-Path $env:RUNNER_TEMP 'ytdlp-venv\Scripts\python.exe'
+          & $python devscripts/update-version.py -c stable -r yt-dlp/yt-dlp 2026.08.19
+          if ($LASTEXITCODE -ne 0) { throw 'Version prep failed' }
+          & $python devscripts/make_lazy_extractors.py
+          if ($LASTEXITCODE -ne 0) { throw 'Lazy extractor build failed' }
+          & $python -m bundle.pyinstaller
+          if ($LASTEXITCODE -ne 0) { throw 'Onefile build failed' }
+          & $python -m bundle.pyinstaller --onedir
+          if ($LASTEXITCODE -ne 0) { throw 'Onedir evidence build failed' }
+
+      - name: Smoke test binary and bundled SSL dependencies
+        working-directory: ytdlp-source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $exe = '.\dist\yt-dlp.exe'
+          if (-not (Test-Path -LiteralPath $exe)) { throw 'yt-dlp.exe not produced' }
+          $version = (& $exe --version)
+          if ($LASTEXITCODE -ne 0) { throw 'Frozen yt-dlp did not launch' }
+          if ($version.Trim() -ne '2026.08.19') { throw "Unexpected yt-dlp version: $version" }
+          $version | Set-Content -Path 'evidence/yt-dlp-version.txt'
+          $targets = @(& $exe --list-impersonate-targets 2>&1 | Out-String)
+          if ($LASTEXITCODE -ne 0) { throw 'Impersonation capability check failed' }
+          $targets | Set-Content -Path 'evidence/impersonation-targets.txt'
+          if (($targets -join '') -notmatch '(?i)chrome') { throw 'curl-cffi Chrome impersonation unavailable' }
+          $dlls = @(Get-ChildItem -LiteralPath '.\dist\yt-dlp' -Recurse -File | Where-Object { $_.Name -match '(?i)^lib(ssl|crypto).*\.dll$' })
+          $dlls | ForEach-Object { $_.FullName } | Set-Content -Path 'evidence/ssl-dll-paths.txt'
+          if ($dlls.Count -lt 2) { throw "Expected OpenSSL 3 DLLs in onedir image; found $($dlls.Count)" }
+          $dlls | ForEach-Object {
+            if ($_.Name -match '1_1') { throw "Unexpected OpenSSL 1.1 DLL: $($_.Name)" }
+            Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256
+          } | Out-File -FilePath 'evidence/ssl-dll-sha256.txt'
+          Get-ChildItem -LiteralPath '.\dist\yt-dlp' -Recurse -File |
+            ForEach-Object { $_.FullName.Replace((Get-Location).Path, '') } |
+            Set-Content -Path 'evidence/onedir-file-list.txt'
+          Get-FileHash -LiteralPath $exe -Algorithm SHA256 |
+            Format-List | Out-File 'evidence/yt-dlp-sha256.txt'
+          Write-Host "Validated yt-dlp $version, curl-cffi impersonation, OpenSSL 3 onedir DLLs"
+          Get-Content 'evidence/yt-dlp-sha256.txt'
+
+      - name: Upload experimental binary and provenance
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ytdlp-2026-08-19-python313-openssl3-experimental
+          path: |
+            ytdlp-source/dist/yt-dlp.exe
+            ytdlp-source/evidence/
+            ytdlp-source/THIRD_PARTY_LICENSES.txt
+            ytdlp-source/bundle/pyinstaller.py
+          retention-days: 7
+          if-no-files-found: warn

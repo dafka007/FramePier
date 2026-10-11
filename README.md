@@ -15,7 +15,7 @@ Version: **0.2.3**
 
 ## Requirements
 
-The Windows installer includes the FramePier helper, a checksum-verified official `yt-dlp` Windows release, and FFmpeg from the Windows build provider linked by the FFmpeg project. It also includes a pinned, checksum-verified Deno JavaScript runtime, which yt-dlp needs to extract YouTube videos. No Python or other runtime is required after installation.
+The Windows installer includes the FramePier helper, a checksum-verified official `yt-dlp` Windows release, and a shared FFmpeg build (see below). It also includes a pinned, checksum-verified Deno JavaScript runtime, which yt-dlp needs to extract YouTube videos. No Python or other runtime is required after installation.
 
 ## Install the helper
 
@@ -104,11 +104,11 @@ For an explicitly selected quality, FramePier resolves an exact current video fo
 
 ## yt-dlp and FFmpeg
 
-The build downloads `yt-dlp.exe` from the pinned official GitHub release tag (2026.08.19) and verifies it against that release's official SHA-256 list. Public binary releases remain subject to the dependency, security and redistribution release gate. The Settings page can run the executable's controlled `-U` updater; it cannot select another repository or update channel.
+The build packages FramePier's own `yt-dlp.exe` build of yt-dlp 2026.08.19 (Python 3.13 / OpenSSL 3.5.9, built from the tagged source with yt-dlp's recipe; see `third-party/ytdlp-openssl3/`), supplied as a local file (`-YtDlpPath`, default `.tools\ytdlp-openssl3\yt-dlp.exe`) and checked against a pinned SHA-256. Public binary releases remain subject to the dependency, security and redistribution release gate. The in-app yt-dlp updater was removed in 0.2.3 so the pinned, verified executable cannot be replaced by an unverified one.
 
-FFmpeg is downloaded from the BtbN/FFmpeg-Builds GitHub repository (pinned release tag), and verified with SHA-256 checksums on both the archive and extracted binaries. FramePier never downloads tools from page-provided URLs.
+FFmpeg is a shared (DLL) LGPL build made from FFmpeg commit `1a748fe2cd43e3ead22fafb1b5b7d77f153898a8` and LAME 3.100 with MSYS2 UCRT64 (configuration and provenance in `third-party/ffmpeg-shared/` and `licenses/FFMPEG-BUILD-PROVENANCE.txt`). `ffmpeg.exe`, `ffprobe.exe` and nine DLLs are installed together in the tools folder. The build script copies them from a local directory and checks the SHA-256 of all eleven files; it never downloads FFmpeg. FramePier never downloads tools from page-provided URLs.
 
-Deno 2.9.7 is bundled as the JavaScript runtime yt-dlp requires for YouTube. The build downloads it from the official release, checks the archive against the checksum published with that release and against a hash recorded in `scripts/build.ps1`, and checks the extracted `deno.exe`. FramePier runs every yt-dlp process with `--ignore-config`, `--no-plugin-dirs`, `--no-remote-components` and `--no-js-runtimes`, then enables only the bundled Deno by absolute path. It never uses a runtime found on PATH, and Twitch downloads do not need it. The redistribution and source-availability gate for the bundled FFmpeg is PENDING / NOT CLEARED (see `THIRD_PARTY_NOTICES.md`); no public binary release should be published until it is completed.
+Deno 2.9.7 is bundled as the JavaScript runtime yt-dlp requires for YouTube. The build downloads it from the official release, checks the archive against the checksum published with that release and against a hash recorded in `scripts/build.ps1`, and checks the extracted `deno.exe`. FramePier runs every yt-dlp process with `--ignore-config`, `--no-plugin-dirs`, `--no-remote-components` and `--no-js-runtimes`, then enables only the bundled Deno by absolute path. It never uses a runtime found on PATH, and Twitch downloads do not need it. Third-party licenses and where the source is published are listed in `THIRD_PARTY_NOTICES.md` and `licenses\SOURCE-AVAILABILITY.txt`.
 
 ## Settings and logs
 
@@ -121,7 +121,7 @@ Logs are stored at `%LOCALAPPDATA%\VidDock\logs`. Open them from Settings. Logs 
 ## Updating
 
 - Extension/helper: build and install a newer FramePier release. FramePier compares the active extension with the installer's trusted `%LOCALAPPDATA%\Programs\FramePier\package-version.json` marker through the helper and requests Chromium's supported `chrome.runtime.reload()` once when a newer package is detected. Reload attempts and successful activation are recorded in the local helper log. If Chromium does not activate changed unpacked files, completely exit and reopen the browser; manual **Reload** remains the final fallback and Remove/Load unpacked is not required.
-- yt-dlp: use **Check/update yt-dlp** in Settings.
+- yt-dlp: bundled and pinned (2026.08.19, FramePier's verified build); it is updated only by installing a newer FramePier release. There is no in-app yt-dlp updater.
 - Browser installed later: run **Repair Browser Integration** from the Start Menu.
 
 ## Troubleshooting
@@ -190,4 +190,4 @@ Small, reviewable changes with tests are welcome. Do not add telemetry, broad ho
 
 ## License
 
-FramePier's original source is licensed under the MIT License; see [LICENSE](LICENSE). Bundled release tools have their own licenses, including LGPL-3.0 terms for FFmpeg and GPLv3+ and other terms for components inside the yt-dlp executable. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). A distributor must preserve those notices and comply with the applicable third-party licenses.
+FramePier's original source is licensed under the MIT License; see [LICENSE](LICENSE). Bundled release tools have their own licenses, including LGPL-2.1-or-later terms for FFmpeg, LGPL terms for LAME, and GPLv3+ and other terms for components inside the yt-dlp executable. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). A distributor must preserve those notices and comply with the applicable third-party licenses.

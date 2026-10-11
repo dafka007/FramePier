@@ -1,0 +1,68 @@
+FramePier 0.2.3 - bundled FFmpeg: build provenance
+==================================================
+
+STATUS: recorded facts only. This file is NOT a statement of license compliance.
+
+What is installed (tools\ next to FramePierHelper.exe)
+------------------------------------------------------
+ffmpeg.exe, ffprobe.exe and the shared libraries they load:
+  avcodec-62.dll, avdevice-62.dll, avfilter-11.dll, avformat-62.dll,
+  avutil-60.dll, swresample-6.dll, swscale-9.dll   (FFmpeg libraries)
+  libmp3lame-0.dll                                  (LAME 3.100, MP3 encoder)
+  libwinpthread-1.dll                               (mingw-w64 winpthreads)
+
+The libraries are separate DLLs so that each one can be replaced by a
+modified or newer build of the same library (FFmpeg: LGPL "relink" requirement
+by way of dynamic linking). Replacing them is unsupported by FramePier.
+
+Sources
+-------
+FFmpeg  : https://github.com/FFmpeg/FFmpeg commit
+          1a748fe2cd43e3ead22fafb1b5b7d77f153898a8 (RELEASE file: 8.1.2)
+          Built unmodified.
+LAME    : lame-3.100.tar.gz
+          https://download.videolan.org/pub/contrib/lame/lame-3.100.tar.gz
+          SHA-256 ddfe36cab873794038ae2c1210557ad34857a4b6bdc515785d1da9e175b1da1e
+          One build-time modification: the line "lame_init_old" is deleted from
+          include/libmp3lame.sym (upstream LAME bug #503; the symbol is not in
+          the compiled objects). See third-party/ffmpeg-shared/lame-export-fix.txt
+          and the workflow copy for the exact command.
+winpthreads : MSYS2 package mingw-w64-ucrt-x86_64-libwinpthread
+          14.0.0.r426.g4564ee4b5-1 (mingw-w64 git 4564ee4b5063097bf747af3a3f8270a28adff820), permissive license.
+          The shipped license text was checked byte-for-byte against that revision.
+
+FFmpeg configuration (from "ffmpeg -buildconf" of the shipped ffmpeg.exe)
+-------------------------------------------------------------------------
+--prefix=/ucrt64 --enable-shared --disable-static --disable-autodetect
+--enable-libmp3lame --enable-schannel --disable-doc --disable-debug
+--disable-ffplay
+No --enable-gpl, --enable-version3 or --enable-nonfree. "ffmpeg -L" of the
+shipped build reports the GNU Lesser General Public License version 2.1 or later.
+Other optional libraries are disabled (--disable-autodetect); schannel is the
+Windows system TLS component and is not redistributed.
+
+Build environment
+-----------------
+GitHub Actions windows-latest, MSYS2 UCRT64 via msys2/setup-msys2 (pinned commit
+ec48f7c5447b3140e2b088413ae3a55687bccb6e). Full package list:
+third-party/ffmpeg-shared/msys2-package-versions.txt. Compiler: mingw-w64-ucrt-x86_64-gcc 16.2.0-5.
+The exact workflow: third-party/ffmpeg-shared/ffmpeg-shared-prototype.workflow.yml.txt.
+Byte-identical rebuilds have not been demonstrated.
+
+Shipped file hashes (SHA-256)
+-----------------------------
+6dffef734d9781d9429cac5584fb98491ccf6267ada24f8f993c7c1e21ae00d2  ffmpeg.exe
+83748b310feb3b9e92c2fb9112037f5636ae7ce5e6e020802beead1422b3b057  ffprobe.exe
+bab865266ada5fece37b5d02ff26b1425e56d0db5ebad9286076647a04b86ca5  avcodec-62.dll
+a18d5eb9e3eebda087e91e8fcf5ac8881b085eb4cd2702860a81bff2548e8d54  avdevice-62.dll
+3a8458551e15cd54c348902d639dc63b8dd5351fe5165a49750dfcd6e788228d  avfilter-11.dll
+a7e21c4678c427c65777ffe359664ce7d7b28ef303f620f869294553bee239eb  avformat-62.dll
+0e50c0f0cb70f8f49417be5ff7d9803a6b90ee9eec2d051f43007fa6594f7ebb  avutil-60.dll
+dad41978e4485e529ce0898219b59b4af867c6ae6b53a94a62be6ea89741ca78  libmp3lame-0.dll
+76cc52adfcdb8c800813b2ae8da42a908934eb1ee54ce8e9744fc8d703c76ee1  libwinpthread-1.dll
+c5b8de9ce9cc50f2c49ed8edc524a317d3874476519eb4ed0a8ee394168b5c6a  swresample-6.dll
+61616e9fca663cd26041bc7ff8fd671656d06d26cbf54bfc1d8a3d4c67684f00  swscale-9.dll
+
+Corresponding source
+--------------------
+See SOURCE-AVAILABILITY.txt. The source bundle also contains BUILD-INSTRUCTIONS.txt.

@@ -1,0 +1,13 @@
+
+  configuration:
+    --prefix=/ucrt64
+    --enable-shared
+    --disable-static
+    --disable-autodetect
+    --enable-libmp3lame
+    --enable-schannel
+    --disable-doc
+    --disable-debug
+    --disable-ffplay
+
+Exiting with exit code 0
