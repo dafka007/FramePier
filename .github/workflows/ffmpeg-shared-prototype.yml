@@ -45,6 +45,11 @@ jobs:
           echo "ddfe36cab873794038ae2c1210557ad34857a4b6bdc515785d1da9e175b1da1e  lame-3.100.tar.gz" | sha256sum -c -
           tar -xzf lame-3.100.tar.gz
           cd lame-3.100
+          # Upstream LAME 3.100 bug #503: obsolete export absent from compiled objects.
+          # See https://sourceforge.net/p/lame/bugs/503/
+          grep -Fxq 'lame_init_old' include/libmp3lame.sym || { echo "Expected obsolete LAME export missing; STOP"; exit 1; }
+          sed -i '/^lame_init_old$/d' include/libmp3lame.sym
+          printf '%s\n' 'LAME 3.100 export-file fix: remove lame_init_old from include/libmp3lame.sym (upstream bug #503)' > ../lame-export-fix.txt
           ./configure --prefix=/ucrt64 --enable-shared --disable-static --disable-frontend
           make -j4
           make install
@@ -63,6 +68,7 @@ jobs:
           make -j4
           make install
           cd "$root"
+          cp .prototype-work/lame-export-fix.txt prototype/
 
           echo "Collecting FFmpeg, LAME and required MinGW runtime DLLs"
           cp /ucrt64/bin/ffmpeg.exe /ucrt64/bin/ffprobe.exe prototype/bin/
