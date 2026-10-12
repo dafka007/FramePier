@@ -14,12 +14,15 @@ const (
 	sourceTwitchClip  mediaSource = "twitch_clip"
 	sourceTwitchVOD   mediaSource = "twitch_vod"
 	sourceDailymotion mediaSource = "dailymotion"
+	sourceGeneric     mediaSource = "generic"
 )
 
 type mediaTarget struct {
 	CanonicalURL string
 	ID           string
 	Source       mediaSource
+	// Extractor is fixed by a narrowly validated site URL. It is never client-supplied.
+	Extractor    string
 }
 
 var (
@@ -29,7 +32,146 @@ var (
 	// Dailymotion video IDs are "x" followed by lowercase base36. The optional
 	// slug that older share links append after "_" is validated and discarded.
 	dailymotionIDPattern   = regexp.MustCompile(`^x[0-9a-z]{4,10}$`)
-	dailymotionSlugPattern = regexp.MustCompile(`^[A-Za-z0-9-]{1,200}$`)
+	dailymotionSlugPattern = regexp.MustCompile(`^[A-Za-z0-9-]{1,200}package main
+
+import (
+	"errors"
+	"net/url"
+	"regexp"
+	"strings"
+)
+
+type mediaSource string
+
+const (
+	sourceYouTube     mediaSource = "youtube"
+	sourceTwitchClip  mediaSource = "twitch_clip"
+	sourceTwitchVOD   mediaSource = "twitch_vod"
+	sourceDailymotion mediaSource = "dailymotion"
+	sourceGeneric     mediaSource = "generic"
+)
+
+type mediaTarget struct {
+	CanonicalURL string
+	ID           string
+	Source       mediaSource
+	// Extractor is fixed by a narrowly validated site URL. It is never client-supplied.
+	Extractor    string
+}
+
+var (
+	twitchClipIDPattern  = regexp.MustCompile(`^[A-Za-z0-9_-]{6,100}$`)
+	twitchChannelPattern = regexp.MustCompile(`^[A-Za-z0-9_]{1,25}$`)
+	twitchVODIDPattern   = regexp.MustCompile(`^[0-9]{1,20}$`)
+	// Dailymotion video IDs are "x" followed by lowercase base36. The optional
+	// slug that older share links append after "_" is validated and discarded.
+	dailymotionIDPattern   = regexp.MustCompile(`^x[0-9a-z]{4,10}$`)
+)
+	vimeoVideoPattern      = regexp.MustCompile(`^/[0-9]{1,20}package main
+
+import (
+	"errors"
+	"net/url"
+	"regexp"
+	"strings"
+)
+
+type mediaSource string
+
+const (
+	sourceYouTube     mediaSource = "youtube"
+	sourceTwitchClip  mediaSource = "twitch_clip"
+	sourceTwitchVOD   mediaSource = "twitch_vod"
+	sourceDailymotion mediaSource = "dailymotion"
+	sourceGeneric     mediaSource = "generic"
+)
+
+type mediaTarget struct {
+	CanonicalURL string
+	ID           string
+	Source       mediaSource
+	// Extractor is fixed by a narrowly validated site URL. It is never client-supplied.
+	Extractor    string
+}
+
+var (
+	twitchClipIDPattern  = regexp.MustCompile(`^[A-Za-z0-9_-]{6,100}$`)
+	twitchChannelPattern = regexp.MustCompile(`^[A-Za-z0-9_]{1,25}$`)
+	twitchVODIDPattern   = regexp.MustCompile(`^[0-9]{1,20}$`)
+	// Dailymotion video IDs are "x" followed by lowercase base36. The optional
+	// slug that older share links append after "_" is validated and discarded.
+	dailymotionIDPattern   = regexp.MustCompile(`^x[0-9a-z]{4,10}$`)
+)
+	redditVideoPattern     = regexp.MustCompile(`^/r/[A-Za-z0-9_]{1,21}/comments/[A-Za-z0-9]{3,12}/[A-Za-z0-9_-]{1,200}/?package main
+
+import (
+	"errors"
+	"net/url"
+	"regexp"
+	"strings"
+)
+
+type mediaSource string
+
+const (
+	sourceYouTube     mediaSource = "youtube"
+	sourceTwitchClip  mediaSource = "twitch_clip"
+	sourceTwitchVOD   mediaSource = "twitch_vod"
+	sourceDailymotion mediaSource = "dailymotion"
+	sourceGeneric     mediaSource = "generic"
+)
+
+type mediaTarget struct {
+	CanonicalURL string
+	ID           string
+	Source       mediaSource
+	// Extractor is fixed by a narrowly validated site URL. It is never client-supplied.
+	Extractor    string
+}
+
+var (
+	twitchClipIDPattern  = regexp.MustCompile(`^[A-Za-z0-9_-]{6,100}$`)
+	twitchChannelPattern = regexp.MustCompile(`^[A-Za-z0-9_]{1,25}$`)
+	twitchVODIDPattern   = regexp.MustCompile(`^[0-9]{1,20}$`)
+	// Dailymotion video IDs are "x" followed by lowercase base36. The optional
+	// slug that older share links append after "_" is validated and discarded.
+	dailymotionIDPattern   = regexp.MustCompile(`^x[0-9a-z]{4,10}$`)
+)
+	tiktokVideoPattern     = regexp.MustCompile(`^/@[A-Za-z0-9_.]{2,32}/video/[0-9]{6,24}package main
+
+import (
+	"errors"
+	"net/url"
+	"regexp"
+	"strings"
+)
+
+type mediaSource string
+
+const (
+	sourceYouTube     mediaSource = "youtube"
+	sourceTwitchClip  mediaSource = "twitch_clip"
+	sourceTwitchVOD   mediaSource = "twitch_vod"
+	sourceDailymotion mediaSource = "dailymotion"
+	sourceGeneric     mediaSource = "generic"
+)
+
+type mediaTarget struct {
+	CanonicalURL string
+	ID           string
+	Source       mediaSource
+	// Extractor is fixed by a narrowly validated site URL. It is never client-supplied.
+	Extractor    string
+}
+
+var (
+	twitchClipIDPattern  = regexp.MustCompile(`^[A-Za-z0-9_-]{6,100}$`)
+	twitchChannelPattern = regexp.MustCompile(`^[A-Za-z0-9_]{1,25}$`)
+	twitchVODIDPattern   = regexp.MustCompile(`^[0-9]{1,20}$`)
+	// Dailymotion video IDs are "x" followed by lowercase base36. The optional
+	// slug that older share links append after "_" is validated and discarded.
+	dailymotionIDPattern   = regexp.MustCompile(`^x[0-9a-z]{4,10}$`)
+)
 )
 
 func validateMediaURL(raw, suppliedID string) (mediaTarget, error) {
@@ -49,8 +191,10 @@ func validateMediaURL(raw, suppliedID string) (mediaTarget, error) {
 		target, err = validateParsedTwitchURL(parsed, host)
 	case "dailymotion.com", "www.dailymotion.com":
 		target, err = validateParsedDailymotionURL(parsed)
+	case "vimeo.com", "www.vimeo.com", "reddit.com", "www.reddit.com", "tiktok.com", "www.tiktok.com":
+		target, err = validateSupportedGenericURL(parsed, host)
 	default:
-		err = errors.New("Only official YouTube, Twitch and Dailymotion domains are supported.")
+		err = errors.New("This site is not yet supported by FramePier.")
 	}
 	if err != nil {
 		return mediaTarget{}, err
@@ -127,6 +271,29 @@ func validateParsedDailymotionURL(parsed *url.URL) (mediaTarget, error) {
 	return mediaTarget{}, errors.New("This Dailymotion page is not a supported public video.")
 }
 
+// This is an explicitly constrained first batch, not an arbitrary-URL pass-through.
+// It does not create a network sandbox: yt-dlp's approved extractor may still
+// contact media/CDN hosts. Broader site support requires a separate network gate.
+func validateSupportedGenericURL(parsed *url.URL, host string) (mediaTarget, error) {
+	if parsed.RawQuery != "" || parsed.Fragment != "" || parsed.Opaque != "" || parsed.ForceQuery ||
+		parsed.RawPath != "" || parsed.EscapedPath() != parsed.Path {
+		return mediaTarget{}, errors.New("Use the direct public video URL without extra parameters.")
+	}
+	var extractor string
+	switch host {
+	case "vimeo.com", "www.vimeo.com":
+		if vimeoVideoPattern.MatchString(parsed.Path) { extractor = "Vimeo" }
+	case "reddit.com", "www.reddit.com":
+		if redditVideoPattern.MatchString(parsed.Path) { extractor = "Reddit" }
+	case "tiktok.com", "www.tiktok.com":
+		if tiktokVideoPattern.MatchString(parsed.Path) { extractor = "TikTok" }
+	}
+	if extractor == "" {
+		return mediaTarget{}, errors.New("Open a single public video page on this site, not a feed or profile.")
+	}
+	return mediaTarget{CanonicalURL: parsed.String(), Source: sourceGeneric, Extractor: extractor}, nil
+}
+
 func pathParts(value string) []string {
 	trimmed := strings.Trim(value, "/")
 	if trimmed == "" {
@@ -154,6 +321,8 @@ func sourceLabel(source mediaSource) string {
 		return "Twitch VOD"
 	case sourceDailymotion:
 		return "Dailymotion"
+	case sourceGeneric:
+		return "Supported site"
 	default:
 		return "YouTube"
 	}
