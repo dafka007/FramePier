@@ -43,6 +43,10 @@ func ytdlpExtractorFor(source mediaSource) string {
 	if source == sourceDailymotion {
 		return "dailymotion"
 	}
+	if source == sourceGeneric {
+		// Explicit extractors only; never invoke yt-dlp generic/fallback on arbitrary sites.
+		return "Vimeo,Reddit,TikTok"
+	}
 	return ""
 }
 
