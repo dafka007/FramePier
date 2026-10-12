@@ -58,12 +58,6 @@ func newYtdlpCommandContext(ctx context.Context, ytdlpPath, runtimePath string, 
 	return newHiddenCommandContext(ctx, ytdlpPath, full...)
 }
 
-// newYtdlpCommand builds a non-extraction yt-dlp command such as -U.
-func newYtdlpCommand(ytdlpPath string, args ...string) *exec.Cmd {
-	full := append(ytdlpPrefixArgs(""), args...)
-	return newHiddenCommand(ytdlpPath, full...)
-}
-
 // probeJSRuntimeVersion runs the bundled runtime's --version. It is a variable
 // so tests can substitute a fake.
 var probeJSRuntimeVersion = func(path string) (string, error) {

@@ -1,6 +1,8 @@
 param(
     [switch]$SkipDownloads,
-    [switch]$SkipInstaller
+    [switch]$SkipInstaller,
+    [string]$FFmpegSharedDir,
+    [string]$YtDlpPath
 )
 
 $ErrorActionPreference = 'Stop'
@@ -62,40 +64,49 @@ try {
 }
 
 if (-not $SkipDownloads) {
+    # yt-dlp 2026.08.19: FramePier's own build of yt-dlp's tagged source (commit 3a08beaf031ab68f966401ead017ac81fe8486cf)
+    # with yt-dlp's PyInstaller recipe on Python 3.13.16 (OpenSSL 3.5.9) instead of upstream's Python 3.10 (OpenSSL 1.1.1t).
+    # See third-party\ytdlp-openssl3\ . There is deliberately no download URL: supply the verified file with -YtDlpPath
+    # (default .tools\ytdlp-openssl3\yt-dlp.exe). Its SHA-256 is pinned here.
+    $expectedYtdlpSha256 = '8b976e7ff71a6f8e8dd48feb2920b3c41a44641ffe192dba08cde0175890ee44'
+    if (-not $YtDlpPath) { $YtDlpPath = Join-Path $toolsRoot 'ytdlp-openssl3\yt-dlp.exe' }
+    if (-not (Test-Path -LiteralPath $YtDlpPath -PathType Leaf)) { throw "yt-dlp.exe was not found at $YtDlpPath. Pass -YtDlpPath with the verified FramePier build." }
+    Assert-Sha256 $YtDlpPath $expectedYtdlpSha256
     $ytdlp = Join-Path $dependencyDir 'yt-dlp.exe'
-    $sumFile = Join-Path $cacheRoot 'yt-dlp-SHA2-256SUMS'
-    Download-File 'https://github.com/yt-dlp/yt-dlp/releases/download/2026.08.19/yt-dlp.exe' $ytdlp
-    Invoke-WebRequest -UseBasicParsing -Uri 'https://github.com/yt-dlp/yt-dlp/releases/download/2026.08.19/SHA2-256SUMS' -OutFile $sumFile
-    $expectedLine = Get-Content -LiteralPath $sumFile | Where-Object { $_ -match '\syt-dlp\.exe$' } | Select-Object -First 1
-    if (-not $expectedLine) { throw 'yt-dlp checksum file did not contain yt-dlp.exe.' }
-    Assert-Sha256 $ytdlp (($expectedLine -split '\s+')[0])
+    Copy-Item -LiteralPath $YtDlpPath -Destination $ytdlp -Force
+    Assert-Sha256 $ytdlp $expectedYtdlpSha256
 
-    # BtbN/FFmpeg-Builds LGPL static build (immutable release-tag URL).
-    # Provider: https://github.com/BtbN/FFmpeg-Builds
-    # Release:  autobuild-2026-08-31-13-27
-    # Build-repo commit: 8267213e26c1031621e6e1210fe3aa4867214f6a
-    # FFmpeg source commit: 1a748fe2cd43e3ead22fafb1b5b7d77f153898a8
-    # Artifact: ffmpeg-n8.1.2-50-g1a748fe2cd-win64-lgpl-8.1.zip
-    $ffmpegArchive = Join-Path $cacheRoot 'ffmpeg-n8.1.2-50-g1a748fe2cd-win64-lgpl-8.1.zip'
-    Download-File 'https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2026-08-31-13-27/ffmpeg-n8.1.2-50-g1a748fe2cd-win64-lgpl-8.1.zip' $ffmpegArchive
-    Assert-Sha256 $ffmpegArchive 'f6274bbd9c247f9e90c1bbed066b03ed4a3907cece2fb91be6dd352393936365'
-    $ffmpegExtract = Join-Path $toolsRoot 'ffmpeg-extract'
-    if (Test-Path -LiteralPath $ffmpegExtract) { Remove-Item -LiteralPath $ffmpegExtract -Recurse -Force }
-    Expand-Archive -LiteralPath $ffmpegArchive -DestinationPath $ffmpegExtract
-    # BtbN archive structure: ffmpeg-<version>-<target>-<variant>/bin/
-    $binDir = Get-ChildItem -LiteralPath $ffmpegExtract -Directory -Recurse | Where-Object { $_.Name -eq 'bin' } | Select-Object -First 1
-    if (-not $binDir) { throw 'bin directory was not present in the verified FFmpeg archive.' }
-    $expectedBinaryHash = @{
-        'ffmpeg.exe'  = '9c60da6c0b083110d59084ea39f60ae149aa3e031c3b4bb4f573fafa1c1e7cea'
-        'ffprobe.exe' = '67176fa62f89f94c3bcd379fd05677a25651569a2eb8880ec2194e62c82be412'
+    # EXPERIMENTAL shared-LGPL FFmpeg (ffmpeg.exe, ffprobe.exe and 9 DLLs).
+    # Built from FFmpeg commit 1a748fe2cd43e3ead22fafb1b5b7d77f153898a8 and LAME 3.100
+    # (MSYS2 UCRT64, --enable-shared --disable-autodetect --enable-libmp3lame --enable-schannel).
+    # There is deliberately no download URL: GitHub Actions artifacts expire and must not be
+    # a production source. Supply a verified local directory with -FFmpegSharedDir (default
+    # .tools\ffmpeg-shared). Every file is checked against the SHA-256 recorded below.
+    # NOT redistribution-cleared; see THIRD_PARTY_NOTICES.md.
+    if (-not $FFmpegSharedDir) { $FFmpegSharedDir = Join-Path $toolsRoot 'ffmpeg-shared' }
+    $expectedFFmpegHash = [ordered]@{
+        'ffmpeg.exe'         = '6dffef734d9781d9429cac5584fb98491ccf6267ada24f8f993c7c1e21ae00d2'
+        'ffprobe.exe'        = '83748b310feb3b9e92c2fb9112037f5636ae7ce5e6e020802beead1422b3b057'
+        'avcodec-62.dll'     = 'bab865266ada5fece37b5d02ff26b1425e56d0db5ebad9286076647a04b86ca5'
+        'avdevice-62.dll'    = 'a18d5eb9e3eebda087e91e8fcf5ac8881b085eb4cd2702860a81bff2548e8d54'
+        'avfilter-11.dll'    = '3a8458551e15cd54c348902d639dc63b8dd5351fe5165a49750dfcd6e788228d'
+        'avformat-62.dll'    = 'a7e21c4678c427c65777ffe359664ce7d7b28ef303f620f869294553bee239eb'
+        'avutil-60.dll'      = '0e50c0f0cb70f8f49417be5ff7d9803a6b90ee9eec2d051f43007fa6594f7ebb'
+        'libmp3lame-0.dll'   = 'dad41978e4485e529ce0898219b59b4af867c6ae6b53a94a62be6ea89741ca78'
+        'libwinpthread-1.dll' = '76cc52adfcdb8c800813b2ae8da42a908934eb1ee54ce8e9744fc8d703c76ee1'
+        'swresample-6.dll'   = 'c5b8de9ce9cc50f2c49ed8edc524a317d3874476519eb4ed0a8ee394168b5c6a'
+        'swscale-9.dll'      = '61616e9fca663cd26041bc7ff8fd671656d06d26cbf54bfc1d8a3d4c67684f00'
     }
-    foreach ($name in @('ffmpeg.exe', 'ffprobe.exe')) {
-        $binary = Join-Path $binDir.FullName $name
-        if (-not (Test-Path -LiteralPath $binary)) { throw "$name was not present in the verified FFmpeg archive." }
-        Copy-Item -LiteralPath $binary -Destination (Join-Path $dependencyDir $name) -Force
-        Assert-Sha256 (Join-Path $dependencyDir $name) $expectedBinaryHash[$name]
+    foreach ($name in $expectedFFmpegHash.Keys) {
+        $source = Join-Path $FFmpegSharedDir $name
+        if (-not (Test-Path -LiteralPath $source -PathType Leaf)) { throw "$name was not found in $FFmpegSharedDir. Pass -FFmpegSharedDir with the verified shared FFmpeg directory." }
+        Assert-Sha256 $source $expectedFFmpegHash[$name]
     }
-    Remove-Item -LiteralPath $ffmpegExtract -Recurse -Force
+    foreach ($name in $expectedFFmpegHash.Keys) {
+        $target = Join-Path $dependencyDir $name
+        Copy-Item -LiteralPath (Join-Path $FFmpegSharedDir $name) -Destination $target -Force
+        Assert-Sha256 $target $expectedFFmpegHash[$name]
+    }
 
     # Deno: the JavaScript runtime yt-dlp needs for YouTube (official release asset, pinned).
     # Release:  https://github.com/denoland/deno/releases/tag/v2.9.7
@@ -124,6 +135,11 @@ if (-not $SkipDownloads) {
     Copy-Item -LiteralPath $denoExtracted -Destination (Join-Path $dependencyDir 'deno.exe') -Force
     Assert-Sha256 (Join-Path $dependencyDir 'deno.exe') $denoExeSha256
     Remove-Item -LiteralPath $denoExtract -Recurse -Force
+}
+
+# Every license file the notices refer to must exist before an installer is built.
+foreach ($licenseFile in 'DENO-2.9.7-CRATE-LICENSES.txt', 'DENO-2.9.7-CRATE-AUTHORS.txt', 'DENO-V8-LICENSES.txt', 'DENO-2.9.7-MIT.txt', 'YT-DLP-2026.08.19-NOTICES.txt', 'YT-DLP-PYTHON-RUNTIME-NOTICES.txt', 'GPL-3.0.txt', 'FFMPEG-LGPL-2.1.txt', 'LAME-LGPL-2.0.txt', 'SOURCE-AVAILABILITY.txt', 'GO-LICENSE.txt') {
+    if (-not (Test-Path -LiteralPath (Join-Path $projectRoot "licenses\$licenseFile") -PathType Leaf)) { throw "licenses\$licenseFile is missing (run third-party\deno\collect-missing-crate-authors.ps1 for the Deno crate authors file)." }
 }
 
 $packageVersion = (Get-Content -Raw -LiteralPath (Join-Path $projectRoot 'extension\manifest.json') | ConvertFrom-Json).version

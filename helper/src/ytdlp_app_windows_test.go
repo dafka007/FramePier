@@ -101,16 +101,31 @@ func TestYtdlpCommandPutsFixedOptionsFirstAndKeepsHiddenWindow(t *testing.T) {
 	}
 }
 
-func TestYtdlpUpdateCommandIgnoresConfigAndEnablesNoRuntime(t *testing.T) {
-	cmd := newYtdlpCommand(`C:\x\yt-dlp.exe`, "-U")
-	joined := strings.Join(cmd.Args, " ")
-	for _, want := range []string{"--ignore-config", "--no-plugin-dirs", "--no-remote-components", "--no-js-runtimes"} {
-		if !strings.Contains(joined, want) {
-			t.Fatalf("update command lacks %s: %q", want, cmd.Args)
+func TestYtdlpSelfUpdateIsNotReachable(t *testing.T) {
+	// The bundled yt-dlp.exe is a pinned, verified build. No request may make the helper run its -U updater.
+	for _, payload := range []string{
+		`{"id":"u1","command":"update_ytdlp"}`,
+		`{"id":"u2","command":"update_ytdlp","url":"https://github.com/yt-dlp/yt-dlp"}`,
+	} {
+		var raw map[string]json.RawMessage
+		if err := json.Unmarshal([]byte(payload), &raw); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := decodeRequest([]byte(payload), raw); err == nil {
+			t.Fatalf("update_ytdlp must be rejected: %s", payload)
 		}
 	}
-	if strings.Contains(joined, "--js-runtimes") || cmd.Args[len(cmd.Args)-1] != "-U" {
-		t.Fatalf("unexpected update arguments: %q", cmd.Args)
+	for _, name := range []string{"main.go", "formats.go", "ytdlp_command.go"} {
+		data, err := os.ReadFile(name)
+		if err != nil {
+			t.Fatal(err)
+		}
+		source := string(data)
+		for _, forbidden := range []string{"update_ytdlp", "updateYTDLP", "newYtdlpCommand(", `"-U"`, `"--update"`, "--update-to"} {
+			if strings.Contains(source, forbidden) {
+				t.Fatalf("%s still contains a yt-dlp self-update path: %s", name, forbidden)
+			}
+		}
 	}
 }
 

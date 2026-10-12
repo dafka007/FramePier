@@ -1,0 +1,20 @@
+altgraph==0.17.5
+brotli==1.2.0
+certifi==2026.7.22
+cffi==2.1.1
+charset-normalizer==3.5.0
+curl_cffi==0.16.0
+idna==3.18
+mutagen==1.48.1
+packaging==26.3
+pefile==2024.8.26
+pycparser==3.0
+pycryptodomex==3.23.0
+pyinstaller @ https://github.com/yt-dlp/Pyinstaller-Builds/releases/download/2026.08.19.215425/pyinstaller-6.22.0-py3-none-win_amd64.whl#sha256=294099ecb5fdd2a13ae4c29006d4e335b697a63b6a16cf052b90ec2b40bef05a
+pyinstaller-hooks-contrib==2026.6
+pywin32-ctypes==0.2.3
+requests==2.34.2
+setuptools==84.0.0
+urllib3==2.7.0
+websockets==17.0.1
+yt-dlp-ejs==0.8.0

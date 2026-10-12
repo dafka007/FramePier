@@ -45,11 +45,11 @@ Some internal identifiers intentionally retain the former VidDock name so existi
 
 ## Dependency and update trust
 
-Builds retrieve Go from `go.dev`, `yt-dlp.exe` from the official `yt-dlp/yt-dlp` GitHub release (pinned tag), FFmpeg from the BtbN/FFmpeg-Builds repository (pinned release tag), and Deno from the official release (pinned version). Every downloaded release artifact is checksum-verified before packaging.
+Builds retrieve Go from `go.dev`, FramePier's own build of `yt-dlp.exe` from the pinned `yt-dlp/yt-dlp` tag from a verified local file (SHA-256 pinned in `scripts/build.ps1`; recipe and evidence in `third-party/ytdlp-openssl3/`), FFmpeg from a verified local directory (11 files, each pinned by SHA-256 in `scripts/build.ps1`; the shared build's provenance is in `third-party/ffmpeg-shared/`), and Deno from the official release (pinned version). Every downloaded release artifact is checksum-verified before packaging.
 
 Before every public binary release, the release gate must verify the exact dependency versions, current security advisories, the exact artifacts and hashes being bundled, license and redistribution obligations, and required source/source-availability status. A failed or incomplete gate blocks the public release.
 
-The in-app yt-dlp updater invokes only `yt-dlp.exe -U`; callers cannot choose a repository or arbitrary update arguments.
+There is no in-app yt-dlp updater: the `update_ytdlp` command was removed in 0.2.3 and the helper rejects it as an unknown command, so the pinned, verified `yt-dlp.exe` cannot be replaced at run time. yt-dlp changes only by installing a newer FramePier release.
 
 Release maintainers should retain checksums and third-party notices with build records, scan the complete source tree and relevant Git history for secrets, run the automated test/security checks, and manually inspect the final installer before distribution.
 

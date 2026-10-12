@@ -18,6 +18,12 @@ All notable changes to FramePier are documented here. Versions follow Semantic V
 
 ### Changed
 
+- Replaced upstream's published `yt-dlp.exe` (Python 3.10, OpenSSL 1.1.1t, end-of-life) with a build of the same tagged source (2026.08.19) made with yt-dlp's own recipe on Python 3.13.16 (OpenSSL 3.5.9, SQLite 3.50.4). curl_cffi impersonation and the Deno integration are unchanged. SHA-256 `8b976e7ff71a6f8e8dd48feb2920b3c41a44641ffe192dba08cde0175890ee44`; recipe, evidence and corresponding source are in `FramePier-0.2.3-YtDlp-Source.zip`.
+- Removed the in-app yt-dlp self-updater: the Settings button and the helper's `update_ytdlp` command are gone (the helper now rejects it), so the pinned, verified yt-dlp cannot be replaced by an unverified upstream executable. yt-dlp changes only with a new FramePier release.
+- Added the compiled license texts for Deno's Rust crates and V8 build libraries, and the CPython runtime component notices, to `licenses/`.
+- Replaced the static BtbN FFmpeg with a minimal shared LGPL build (FFmpeg `1a748fe`, LAME 3.100; `ffmpeg.exe`, `ffprobe.exe` and 9 DLLs). All eleven files are SHA-256 pinned in `scripts/build.ps1` and installed together. FFmpeg is no longer downloaded during the build.
+- Settings now shows the abbreviated commit hash when FFmpeg reports `ffmpeg version <hash>` (previously "version unknown").
+- Replaced the FFmpeg LGPL-3.0 license text with LGPL-2.1, added LAME and winpthreads license texts, the MinGW-w64 runtime text, the FFmpeg build provenance and a source-availability index to `licenses/`.
 - Every yt-dlp process is now created by one helper that always passes `--ignore-config`, `--no-plugin-dirs`, `--no-remote-components` and `--no-js-runtimes`, then enables only the bundled Deno by absolute path for YouTube. User-level yt-dlp configuration, plugins, remotely fetched components and runtimes found on PATH are no longer used.
 
 ## [0.2.3] - 2026-09-20

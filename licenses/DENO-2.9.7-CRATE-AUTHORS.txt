@@ -1,0 +1,468 @@
+﻿Deno 2.9.7 - crates that ship no license file inside the crate
+=====================================================================
+For each crate below the license is the one declared in its Cargo.toml (standard texts for MIT, Apache-2.0 (with LLVM exception where stated), BSD, Zlib, BSL-1.0 and CC0 are in DENO-2.9.7-CRATE-LICENSES.txt). The authors and repository are copied from the same Cargo.toml.
+
+Inflector 0.11.4
+  license:    BSD-2-Clause
+  authors:    "Josh Teeter<joshteeter@gmail.com>"
+  repository: https://github.com/whatisinternet/inflector
+aead-gcm-stream 0.4.0
+  license:    MIT
+  authors:    "Divy Srivastava <dj.srivastava23@gmail.com>"
+  repository: (none declared)
+alloc-stdlib 0.2.2
+  license:    BSD-3-Clause
+  authors:    "Daniel Reiter Horn <danielrh@dropbox.com>"
+  repository: https://github.com/dropbox/rust-alloc-no-stdlib
+anes 0.1.6
+  license:    MIT OR Apache-2.0
+  authors:    "Robert Vojta <rvojta@me.com>"
+  repository: https://github.com/zrzka/anes-rs
+asn1-rs-derive 0.4.0
+  license:    MIT/Apache-2.0
+  authors:    "Pierre Chifflier <chifflier@wzdftpd.net>"
+  repository: https://github.com/rusticata/asn1-rs.git
+asn1-rs-impl 0.1.0
+  license:    MIT/Apache-2.0
+  authors:    "Pierre Chifflier <chifflier@wzdftpd.net>"
+  repository: https://github.com/rusticata/asn1-rs.git
+ast_node 5.0.0
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+backhand 0.25.1
+  license:    MIT OR Apache-2.0
+  authors:    "wcampbell <wcampbell1995@gmail.com>"
+  repository: https://github.com/wcampbell0x2a/backhand
+base64-simd 0.8.0
+  license:    MIT
+  authors:    (none declared in Cargo.toml)
+  repository: https://github.com/Nugine/simd
+better_scoped_tls 1.0.1
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+block2 0.6.2
+  license:    MIT
+  authors:    "Mads Marquart <mads@marquart.dk>"
+  repository: https://github.com/madsmtm/objc2
+bytes-str 0.2.7
+  license:    Apache-2.0
+  authors:    "Donny <kdy1997.dev@gmail.com>"
+  repository: https://github.com/dudykr/ddbase.git
+capacity_builder_macros 0.3.0
+  license:    MIT
+  authors:    (none declared in Cargo.toml)
+  repository: https://github.com/dsherret/capacity_builder
+clipboard-win 5.3.0
+  license:    BSL-1.0
+  authors:    "Douman <douman@gmx.se>"
+  repository: https://github.com/DoumanAsh/clipboard-win
+convert_case 0.4.0
+  license:    MIT
+  authors:    "David Purdum <purdum41@gmail.com>"
+  repository: https://github.com/rutrum/convert-case
+cranelift-assembler-x64 0.117.2
+  license:    Apache-2.0 WITH LLVM-exception
+  authors:    (none declared in Cargo.toml)
+  repository: (none declared)
+cranelift-assembler-x64-meta 0.117.2
+  license:    Apache-2.0 WITH LLVM-exception
+  authors:    (none declared in Cargo.toml)
+  repository: (none declared)
+cranelift-bitset 0.117.2
+  license:    Apache-2.0 WITH LLVM-exception
+  authors:    "The Cranelift Project Developers"
+  repository: https://github.com/bytecodealliance/wasmtime
+cranelift-isle 0.117.2
+  license:    Apache-2.0 WITH LLVM-exception
+  authors:    "The Cranelift Project Developers"
+  repository: https://github.com/bytecodealliance/wasmtime/tree/main/cranelift/isle
+deno-tower-lsp-macros 0.12.0
+  license:    MIT OR Apache-2.0
+  authors:    "Eyal Kalderon <ebkalderon@gmail.com>", "the Deno authors",
+  repository: https://github.com/ebkalderon/tower-lsp
+deno_core_icudata 0.77.0
+  license:    MIT
+  authors:    "the Deno authors"
+  repository: https://github.com/denoland/deno_core_icudata
+deno_error_macro 0.7.1
+  license:    MIT
+  authors:    "the Deno authors"
+  repository: https://github.com/denoland/deno_error
+deno_native_certs 0.3.0
+  license:    MIT
+  authors:    "Divy Srivastava <dj.srivastava23@gmail.com>"
+  repository: https://github.com/denoland/deno_native_certs
+deno_tunnel 0.8.1
+  license:    MIT
+  authors:    "the Deno authors"
+  repository: https://github.com/denoland/deno_tunnel
+denokv_proto 0.14.0
+  license:    MIT
+  authors:    "the Deno authors"
+  repository: https://github.com/denoland/denokv
+denokv_remote 0.14.0
+  license:    MIT
+  authors:    "the Deno authors"
+  repository: https://github.com/denoland/denokv
+denokv_sqlite 0.14.0
+  license:    MIT
+  authors:    "the Deno authors"
+  repository: https://github.com/denoland/denokv
+derive-io 0.4.1
+  license:    MIT OR Apache-2.0
+  authors:    "Matt Mastracci <matthew@mastracci.com>"
+  repository: https://github.com/mmastrac/derive-io
+derive-io-macros 0.4.1
+  license:    MIT OR Apache-2.0
+  authors:    "Matt Mastracci <matthew@mastracci.com>"
+  repository: https://github.com/mmastrac/derive-io
+dispatch2 0.3.1
+  license:    Zlib OR Apache-2.0 OR MIT
+  authors:    "Mads Marquart <mads@marquart.dk>", "Mary <mary@mary.zone>",
+  repository: https://github.com/madsmtm/objc2
+dlopen2 0.6.1
+  license:    MIT
+  authors:    "Szymon Wieloch <szymon.wieloch@gmail.com>", "Ahmed Masud <ahmed.masud@saf.ai>", "OpenByte <development.openbyte@gmail.com>",
+  repository: https://github.com/OpenByteDev/dlopen2
+dlopen2_derive 0.4.0
+  license:    MIT
+  authors:    "Szymon Wieloch <szymon.wieloch@gmail.com>", "OpenByte <development.openbyte@gmail.com>",
+  repository: (none declared)
+dprint-swc-ext 0.26.0
+  license:    MIT
+  authors:    "David Sherret <dsherret@gmail.com>"
+  repository: https://github.com/dprint/dprint-swc-ext
+error-code 3.2.0
+  license:    BSL-1.0
+  authors:    "Douman <douman@gmx.se>"
+  repository: https://github.com/DoumanAsh/error-code
+fqdn 0.5.2
+  license:    MIT
+  authors:    "Xophe <christophe.dousson@orange.com>"
+  repository: https://github.com/Orange-OpenSource/fqdn
+from_variant 3.0.0
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+gl_generator 0.14.0
+  license:    Apache-2.0
+  authors:    "Brendan Zabarauskas <bjzaba@yahoo.com.au>", "Corey Richardson", "Arseny Kapoulkine"
+  repository: https://github.com/brendanzab/gl-rs/
+gpu-descriptor 0.3.2
+  license:    MIT OR Apache-2.0
+  authors:    "Zakarum <zakarumych@ya.ru>"
+  repository: https://github.com/zakarumych/gpu-descriptor
+gpu-descriptor-types 0.2.0
+  license:    MIT OR Apache-2.0
+  authors:    "Zakarum <zakarumych@ya.ru>"
+  repository: https://github.com/zakarumych/gpu-descriptor
+hexf-parse 0.2.1
+  license:    CC0-1.0
+  authors:    "Kang Seonghoon <public+rust@mearie.org>"
+  repository: https://github.com/lifthrasiir/hexf
+http-body 1.0.0
+  license:    MIT
+  authors:    "Carl Lerche <me@carllerche.com>", "Lucio Franco <luciofranco14@gmail.com>", "Sean McArthur <sean@seanmonstar.com>",
+  repository: https://github.com/hyperium/http-body
+import_map 0.25.0
+  license:    MIT
+  authors:    "the Deno authors"
+  repository: https://github.com/denoland/import_map
+khronos_api 3.1.0
+  license:    Apache-2.0
+  authors:    "Brendan Zabarauskas <bjzaba@yahoo.com.au>", "Corey Richardson", "Arseny Kapoulkine", "Pierre Krieger <pierre.krieger1708@gmail.com>"
+  repository: https://github.com/brendanzab/gl-rs/
+laufey 0.7.0
+  license:    MIT
+  authors:    (none declared in Cargo.toml)
+  repository: https://github.com/littledivy/laufey
+lax-core 0.3.0
+  license:    MIT
+  authors:    (none declared in Cargo.toml)
+  repository: https://github.com/bartlomieju/lax
+lazy-regex-proc_macros 3.1.0
+  license:    MIT
+  authors:    "Canop <cano.petrole@gmail.com>"
+  repository: (none declared)
+libffi 5.1.0
+  license:    MIT/Apache-2.0
+  authors:    "Jesse A. Tov <jesse.tov@gmail.com>"
+  repository: https://github.com/libffi-rs/libffi-rs
+ndk-sys 0.6.0+11769913
+  license:    MIT OR Apache-2.0
+  authors:    "The Rust Windowing contributors"
+  repository: https://github.com/rust-mobile/ndk
+objc2 0.6.4
+  license:    MIT
+  authors:    "Mads Marquart <mads@marquart.dk>"
+  repository: https://github.com/madsmtm/objc2
+objc2-core-foundation 0.3.2
+  license:    Zlib OR Apache-2.0 OR MIT
+  authors:    (none declared in Cargo.toml)
+  repository: https://github.com/madsmtm/objc2
+objc2-encode 4.1.0
+  license:    MIT
+  authors:    "Mads Marquart <mads@marquart.dk>"
+  repository: https://github.com/madsmtm/objc2
+objc2-metal 0.3.2
+  license:    Zlib OR Apache-2.0 OR MIT
+  authors:    (none declared in Cargo.toml)
+  repository: https://github.com/madsmtm/objc2
+objc2-quartz-core 0.3.2
+  license:    Zlib OR Apache-2.0 OR MIT
+  authors:    (none declared in Cargo.toml)
+  repository: https://github.com/madsmtm/objc2
+opentelemetry 0.32.0
+  license:    Apache-2.0
+  authors:    (none declared in Cargo.toml)
+  repository: https://github.com/open-telemetry/opentelemetry-rust/tree/main/opentelemetry
+opentelemetry-http 0.32.0
+  license:    Apache-2.0
+  authors:    (none declared in Cargo.toml)
+  repository: https://github.com/open-telemetry/opentelemetry-rust/tree/main/opentelemetry-http
+opentelemetry-otlp 0.32.0
+  license:    Apache-2.0
+  authors:    (none declared in Cargo.toml)
+  repository: https://github.com/open-telemetry/opentelemetry-rust/tree/main/opentelemetry-otlp
+opentelemetry-semantic-conventions 0.32.1
+  license:    Apache-2.0
+  authors:    (none declared in Cargo.toml)
+  repository: https://github.com/open-telemetry/opentelemetry-rust/tree/main/opentelemetry-semantic-conventions
+opentelemetry_sdk 0.32.1
+  license:    Apache-2.0
+  authors:    (none declared in Cargo.toml)
+  repository: https://github.com/open-telemetry/opentelemetry-rust/tree/main/opentelemetry-sdk
+par-core 2.0.0
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/dudykr/ddbase.git
+phf_macros 0.11.2
+  license:    MIT
+  authors:    "Steven Fackler <sfackler@gmail.com>"
+  repository: https://github.com/rust-phf/rust-phf
+pretty_yaml 0.5.0
+  license:    MIT
+  authors:    "Pig Fang <g-plane@hotmail.com>"
+  repository: https://github.com/g-plane/pretty_yaml
+profiling 1.0.15
+  license:    MIT OR Apache-2.0
+  authors:    "Philip Degarmo <aclysma@gmail.com>"
+  repository: https://github.com/aclysma/profiling
+r-efi 5.3.0
+  license:    MIT OR Apache-2.0 OR LGPL-2.1-or-later
+  authors:    (none declared in Cargo.toml)
+  repository: https://github.com/r-efi/r-efi
+relative-path 1.9.2
+  license:    MIT OR Apache-2.0
+  authors:    "John-John Tedro <udoprog@tedro.se>"
+  repository: https://github.com/udoprog/relative-path
+rsqlite-vfs 0.1.1
+  license:    MIT
+  authors:    (none declared in Cargo.toml)
+  repository: (none declared)
+rustls-tokio-stream 0.8.0
+  license:    MIT
+  authors:    (none declared in Cargo.toml)
+  repository: https://github.com/denoland/rustls-tokio-stream
+rustyline-derive 0.11.1
+  license:    MIT
+  authors:    "gwenn"
+  repository: https://github.com/kkawakam/rustyline
+sacabase 2.0.0
+  license:    MIT
+  authors:    "Amos Wenger <amoswenger@gmail.com>"
+  repository: https://github.com/fasterthanlime/stringsearch
+spirv 0.4.0+sdk-1.4.341.0
+  license:    Apache-2.0
+  authors:    "Lei Zhang <antiagainst@gmail.com>"
+  repository: https://github.com/gfx-rs/rspirv
+sptr 0.3.2
+  license:    MIT OR Apache-2.0
+  authors:    (none declared in Cargo.toml)
+  repository: https://github.com/Gankra/sptr
+string_enum 1.0.2
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+swc_allocator 4.0.1
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+swc_atoms 9.0.0
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+swc_common 17.0.1
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+swc_config 3.1.2
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+swc_config_macro 1.0.1
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+swc_ecma_ast 18.0.0
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+swc_ecma_codegen 20.0.2
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+swc_ecma_codegen_macros 2.0.2
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+swc_ecma_lexer 26.0.0
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+swc_ecma_loader 17.0.0
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+swc_ecma_parser 27.0.7
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+swc_ecma_transforms_base 30.0.1
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+swc_ecma_transforms_classes 30.0.0
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+swc_ecma_transforms_macros 1.0.1
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+swc_ecma_transforms_proposal 30.0.0
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+swc_ecma_transforms_react 33.0.0
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+swc_ecma_transforms_typescript 33.0.0
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+swc_ecma_utils 24.0.0
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+swc_ecma_visit 18.0.1
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+swc_eq_ignore_macros 1.0.1
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1@dudy.kr>"
+  repository: https://github.com/swc-project/swc.git
+swc_macros_common 1.0.1
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+swc_ts_fast_strip 36.0.0
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+swc_visit 2.0.1
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+sys_traits 0.1.28
+  license:    MIT
+  authors:    (none declared in Cargo.toml)
+  repository: https://github.com/dsherret/sys_traits
+sys_traits_macros 0.1.0
+  license:    MIT
+  authors:    (none declared in Cargo.toml)
+  repository: https://github.com/dsherret/sys_traits
+testing_macros 1.0.1
+  license:    Apache-2.0
+  authors:    "ê°•ë™ìœ¤ <kdy1997.dev@gmail.com>"
+  repository: https://github.com/swc-project/swc.git
+tonic-prost 0.14.6
+  license:    MIT
+  authors:    "Lucio Franco <luciofranco14@gmail.com>"
+  repository: https://github.com/hyperium/tonic
+valuable 0.1.0
+  license:    MIT
+  authors:    (none declared in Cargo.toml)
+  repository: https://github.com/tokio-rs/valuable
+vsimd 0.8.0
+  license:    MIT
+  authors:    (none declared in Cargo.toml)
+  repository: https://github.com/Nugine/simd
+vte_generate_state_changes 0.1.1
+  license:    Apache-2.0 OR MIT
+  authors:    "Christian Duerr <contact@christianduerr.com>"
+  repository: https://github.com/jwilm/vte
+wasip2 1.0.2+wasi-0.2.9
+  license:    Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT
+  authors:    (none declared in Cargo.toml)
+  repository: https://github.com/bytecodealliance/wasi-rs
+wasip3 0.4.0+wasi-0.3.0-rc-2026-01-06
+  license:    Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT
+  authors:    (none declared in Cargo.toml)
+  repository: https://github.com/bytecodealliance/wasi-rs
+wasite 0.1.0
+  license:    Apache-2.0 OR BSL-1.0 OR MIT
+  authors:    (none declared in Cargo.toml)
+  repository: https://github.com/ardaku/wasite
+wasm-encoder 0.244.0
+  license:    Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT
+  authors:    "Nick Fitzgerald <fitzgen@gmail.com>"
+  repository: https://github.com/bytecodealliance/wasm-tools/tree/main/crates/wasm-encoder
+wasmparser 0.244.0
+  license:    Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT
+  authors:    "Yury Delendik <ydelendik@mozilla.com>"
+  repository: https://github.com/bytecodealliance/wasm-tools/tree/main/crates/wasmparser
+web-transport-proto 0.2.7
+  license:    MIT OR Apache-2.0
+  authors:    "Luke Curley"
+  repository: https://github.com/kixelated/web-transport
+winapi-i686-pc-windows-gnu 0.4.0
+  license:    MIT/Apache-2.0
+  authors:    "Peter Atashian <retep998@gmail.com>"
+  repository: https://github.com/retep998/winapi-rs
+winapi-x86_64-pc-windows-gnu 0.4.0
+  license:    MIT/Apache-2.0
+  authors:    "Peter Atashian <retep998@gmail.com>"
+  repository: https://github.com/retep998/winapi-rs
+wit-bindgen-rt 0.39.0
+  license:    Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT
+  authors:    (none declared in Cargo.toml)
+  repository: https://github.com/bytecodealliance/wit-bindgen
+wit-component 0.244.0
+  license:    Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT
+  authors:    "Peter Huene <peter@huene.dev>"
+  repository: https://github.com/bytecodealliance/wasm-tools/tree/main/crates/wit-component
+wit-parser 0.244.0
+  license:    Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT
+  authors:    "Alex Crichton <alex@alexcrichton.com>"
+  repository: https://github.com/bytecodealliance/wasm-tools/tree/main/crates/wit-parser
+yaml_parser 0.2.1
+  license:    MIT
+  authors:    "Pig Fang <g-plane@hotmail.com>"
+  repository: https://github.com/g-plane/pretty_yaml
+yasna 0.5.2
+  license:    MIT OR Apache-2.0
+  authors:    "Masaki Hara <ackie.h.gmai@gmail.com>"
+  repository: https://github.com/qnighy/yasna.rs
+zune-core 0.4.12
+  license:    MIT OR Apache-2.0 OR Zlib
+  authors:    (none declared in Cargo.toml)
+  repository: (none declared)
+zune-jpeg 0.4.13
+  license:    MIT OR Apache-2.0 OR Zlib
+  authors:    "caleb <etemesicaleb@gmail.com>"
+  repository: https://github.com/etemesi254/zune-image/tree/dev/crates/zune-jpeg

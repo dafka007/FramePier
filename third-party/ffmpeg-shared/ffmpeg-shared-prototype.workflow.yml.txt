@@ -1,0 +1,126 @@
+name: Experimental shared FFmpeg build
+
+on:
+  push:
+    branches:
+      - experiment/ffmpeg-lgpl-shared-ci
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ffmpeg-prototype:
+    runs-on: windows-latest
+    timeout-minutes: 80
+    steps:
+      - name: Check out experimental branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up MSYS2 UCRT64 build tools
+        uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            make
+            pkgconf
+            diffutils
+            curl
+            git
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-nasm
+
+      - name: Fetch verified sources and build shared FFmpeg
+        shell: msys2 {0}
+        run: |
+          set -euo pipefail
+          root="$(pwd)"
+          mkdir -p .prototype-work prototype/bin
+          cd .prototype-work
+          echo "Downloading pinned LAME 3.100 source"
+          curl --fail --location --retry 2 --connect-timeout 20 --max-time 180             -o lame-3.100.tar.gz             https://download.videolan.org/pub/contrib/lame/lame-3.100.tar.gz
+          echo "ddfe36cab873794038ae2c1210557ad34857a4b6bdc515785d1da9e175b1da1e  lame-3.100.tar.gz" | sha256sum -c -
+          tar -xzf lame-3.100.tar.gz
+          cd lame-3.100
+          # Upstream LAME 3.100 bug #503: obsolete export absent from compiled objects.
+          # See https://sourceforge.net/p/lame/bugs/503/
+          grep -Fxq 'lame_init_old' include/libmp3lame.sym || { echo "Expected obsolete LAME export missing; STOP"; exit 1; }
+          sed -i '/^lame_init_old$/d' include/libmp3lame.sym
+          printf '%s\n' 'LAME 3.100 export-file fix: remove lame_init_old from include/libmp3lame.sym (upstream bug #503)' > ../lame-export-fix.txt
+          ./configure --prefix=/ucrt64 --enable-shared --disable-static --disable-frontend
+          make -j4
+          make install
+          cd ..
+
+          echo "Fetching exact FFmpeg source commit"
+          mkdir ffmpeg-source
+          cd ffmpeg-source
+          git init -q
+          git remote add origin https://github.com/FFmpeg/FFmpeg.git
+          git fetch --depth 1 origin 1a748fe2cd43e3ead22fafb1b5b7d77f153898a8
+          git checkout --detach -q FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "1a748fe2cd43e3ead22fafb1b5b7d77f153898a8"
+          export PKG_CONFIG_PATH=/ucrt64/lib/pkgconfig
+          ./configure             --prefix=/ucrt64             --enable-shared             --disable-static             --disable-autodetect             --enable-libmp3lame             --enable-schannel             --disable-doc             --disable-debug             --disable-ffplay
+          make -j4
+          make install
+          cd "$root"
+          cp .prototype-work/lame-export-fix.txt prototype/
+
+          echo "Collecting FFmpeg, LAME and required MinGW runtime DLLs"
+          cp /ucrt64/bin/ffmpeg.exe /ucrt64/bin/ffprobe.exe prototype/bin/
+          for family in avcodec avdevice avfilter avformat avutil postproc swresample swscale; do
+            for file in /ucrt64/bin/${family}-*.dll; do
+              if [ -f "$file" ]; then cp "$file" prototype/bin/; fi
+            done
+          done
+          cp /ucrt64/bin/libmp3lame-0.dll prototype/bin/
+          for pass in 1 2 3 4; do
+            for binary in prototype/bin/*.exe prototype/bin/*.dll; do
+              if [ ! -f "$binary" ]; then continue; fi
+              while IFS= read -r dll; do
+                if [ -f "/ucrt64/bin/$dll" ] && [ ! -f "prototype/bin/$dll" ]; then
+                  cp "/ucrt64/bin/$dll" prototype/bin/
+                fi
+              done < <(objdump -p "$binary" | sed -n 's/^[[:space:]]*DLL Name: //p')
+            done
+          done
+          /ucrt64/bin/ffmpeg.exe -buildconf > prototype/ffmpeg-buildconf.txt
+          /ucrt64/bin/ffmpeg.exe -L > prototype/ffmpeg-license.txt
+          pacman -Q > prototype/msys2-package-versions.txt
+          (cd prototype/bin && sha256sum *.exe *.dll) > prototype/SHA256SUMS.txt
+          printf '%s\n'             'FFmpeg source: FFmpeg/FFmpeg commit 1a748fe2cd43e3ead22fafb1b5b7d77f153898a8'             'LAME source: https://download.videolan.org/pub/contrib/lame/lame-3.100.tar.gz'             'LAME SHA256: ddfe36cab873794038ae2c1210557ad34857a4b6bdc515785d1da9e175b1da1e'             'EXPERIMENTAL ONLY. Not redistribution-cleared. Not for release.'             > prototype/SOURCE-PROVENANCE.txt
+
+      - name: Smoke test packaged binaries on Windows
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $out = (Resolve-Path "./prototype/bin").Path
+          $env:PATH = "$out;$env:SystemRoot\System32;$env:SystemRoot"
+          & "$out/ffmpeg.exe" -hide_banner -version
+          if ($LASTEXITCODE -ne 0) { throw "FFmpeg could not run from packaged folder" }
+          & "$out/ffprobe.exe" -hide_banner -version
+          if ($LASTEXITCODE -ne 0) { throw "FFprobe could not run from packaged folder" }
+          & "$out/ffmpeg.exe" -nostdin -v error -f lavfi -i sine=frequency=440:duration=1 -c:a libmp3lame -y "./prototype/probe.mp3"
+          if ($LASTEXITCODE -ne 0) { throw "MP3 encoding failed" }
+          & "$out/ffmpeg.exe" -nostdin -v error -f lavfi -i sine=frequency=440:duration=1 -c:a aac -y "./prototype/probe.m4a"
+          if ($LASTEXITCODE -ne 0) { throw "M4A encoding failed" }
+          & "$out/ffmpeg.exe" -nostdin -v error -f lavfi -i color=c=black:s=160x90:d=1 -f lavfi -i sine=frequency=440:duration=1 -c:v mpeg4 -c:a aac -shortest -y "./prototype/input.mp4"
+          if ($LASTEXITCODE -ne 0) { throw "MP4 generation failed" }
+          & "$out/ffmpeg.exe" -nostdin -v error -i "./prototype/input.mp4" -c copy -y "./prototype/remux.mkv"
+          if ($LASTEXITCODE -ne 0) { throw "MKV remux failed" }
+          & "$out/ffmpeg.exe" -nostdin -v error -i "./prototype/remux.mkv" -c copy -y "./prototype/remux.mp4"
+          if ($LASTEXITCODE -ne 0) { throw "MP4 remux failed" }
+          & "$out/ffprobe.exe" -v error -show_entries format=format_name -of default=nw=1 "./prototype/remux.mp4"
+          if ($LASTEXITCODE -ne 0) { throw "Output probing failed" }
+
+      - name: Upload experimental binaries and build evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ffmpeg-shared-lgpl-prototype-win64
+          path: prototype/
+          retention-days: 7
+          if-no-files-found: error

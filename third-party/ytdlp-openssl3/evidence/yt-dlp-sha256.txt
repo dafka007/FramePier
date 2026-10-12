@@ -1,0 +1,5 @@
+
+Algorithm : SHA256
+Hash      : 8B976E7FF71A6F8E8DD48FEB2920B3C41A44641FFE192DBA08CDE0175890EE44
+Path      : D:\a\FramePier\FramePier\ytdlp-source\dist\yt-dlp.exe
+

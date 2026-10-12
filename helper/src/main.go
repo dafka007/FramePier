@@ -240,7 +240,7 @@ func decodeRequest(payload []byte, raw map[string]json.RawMessage) (request, err
 	if len(req.ID) > 80 || !regexp.MustCompile(`^[A-Za-z0-9_-]{1,80}$`).MatchString(req.ID) {
 		return request{}, errors.New("invalid request id")
 	}
-	commands := map[string]bool{"ping": true, "get_video_info": true, "get_formats": true, "start_download": true, "cancel_download": true, "get_status": true, "check_dependencies": true, "get_versions": true, "choose_download_folder": true, "open_download_folder": true, "open_logs_folder": true, "update_ytdlp": true, "get_settings": true, "set_settings": true, "record_update_event": true}
+	commands := map[string]bool{"ping": true, "get_video_info": true, "get_formats": true, "start_download": true, "cancel_download": true, "get_status": true, "check_dependencies": true, "get_versions": true, "choose_download_folder": true, "open_download_folder": true, "open_logs_folder": true, "get_settings": true, "set_settings": true, "record_update_event": true}
 	if !commands[req.Command] {
 		return request{}, errors.New("unknown command")
 	}
@@ -297,8 +297,6 @@ func (a *app) handle(req request) {
 		a.openFixedFolder(folder, base)
 	case "open_logs_folder":
 		a.openFixedFolder(filepath.Join(a.dataDir, "logs"), base)
-	case "update_ytdlp":
-		go a.updateYTDLP(base)
 	case "get_settings":
 		a.mu.RLock()
 		current := a.settings
@@ -1021,27 +1019,6 @@ func (a *app) versions() response {
 		result["extensionPackage"] = response{"installed": true, "version": packageVersion}
 	}
 	return result
-}
-
-func (a *app) updateYTDLP(base response) {
-	path, err := a.toolPath("yt-dlp.exe")
-	if err == nil {
-		cmd := newYtdlpCommand(path, "-U")
-		cmd.Dir = filepath.Dir(path)
-		var out []byte
-		out, err = cmd.CombinedOutput()
-		if err != nil {
-			a.logger.Printf("ytdlp_update_failed error=%q output=%q", err, truncate(string(out), 1000))
-		}
-	}
-	base["ok"] = err == nil
-	if err != nil {
-		base["error"] = "yt-dlp could not be updated. Check the log for details."
-	} else {
-		a.logger.Printf("ytdlp_update_succeeded version=%q", commandVersion(path, "--version"))
-		base["versions"] = a.versions()
-	}
-	a.send(base)
 }
 
 func (a *app) setSettings(req request, base response) {
