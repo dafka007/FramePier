@@ -2,7 +2,7 @@
 
 All notable changes to FramePier are documented here. Versions follow Semantic Versioning.
 
-## [Unreleased]
+## [0.2.3] - 2026-10-12
 
 ### Added
 
@@ -25,14 +25,6 @@ All notable changes to FramePier are documented here. Versions follow Semantic V
 - Settings now shows the abbreviated commit hash when FFmpeg reports `ffmpeg version <hash>` (previously "version unknown").
 - Replaced the FFmpeg LGPL-3.0 license text with LGPL-2.1, added LAME and winpthreads license texts, the MinGW-w64 runtime text, the FFmpeg build provenance and a source-availability index to `licenses/`.
 - Every yt-dlp process is now created by one helper that always passes `--ignore-config`, `--no-plugin-dirs`, `--no-remote-components` and `--no-js-runtimes`, then enables only the bundled Deno by absolute path for YouTube. User-level yt-dlp configuration, plugins, remotely fetched components and runtimes found on PATH are no longer used.
-
-## [0.2.3] - 2026-09-20
-
-### Changed
-
-- Upgraded FFmpeg from Gyan 8.1.1 (GPL) to BtbN 8.1.2 LGPL-3.0 build (`autobuild-2026-08-31-13-27`), fixing CVE-2026-8461 (CVSS 8.8) and CVE-2026-30999.
-- Updated build script to pin the immutable BtbN release-tag URL with SHA-256 verification on both the archive and extracted binaries.
-- Updated `THIRD_PARTY_NOTICES.md` to document the BtbN provider, build-repo commit, FFmpeg source commit, and LGPL-3.0 licensing.
 
 ## [0.2.2] - 2026-09-05
 

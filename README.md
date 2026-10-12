@@ -4,7 +4,7 @@ FramePier is an open-source Windows video downloader that works through a browse
 
 Use FramePier only for media you own, have permission to download, or are otherwise legally allowed to save.
 
-Version: **0.2.3**
+Version: **0.2.3** — [latest Windows installer and corresponding source archives](https://github.com/dafka007/FramePier/releases/tag/v0.2.3)
 
 ## Support
 
@@ -15,7 +15,7 @@ Version: **0.2.3**
 
 ## Requirements
 
-The Windows installer includes the FramePier helper, a checksum-verified official `yt-dlp` Windows release, and a shared FFmpeg build (see below). It also includes a pinned, checksum-verified Deno JavaScript runtime, which yt-dlp needs to extract YouTube videos. No Python or other runtime is required after installation.
+The Windows installer includes the FramePier helper, a SHA-256-verified FramePier-built `yt-dlp.exe` from the upstream 2026.08.19 source tag, and a shared FFmpeg build (see below). It also includes a pinned, checksum-verified Deno JavaScript runtime, which yt-dlp needs to extract YouTube videos. No Python or other runtime is required after installation.
 
 ## Install the helper
 
@@ -146,14 +146,21 @@ Use **Installed apps → FramePier → Uninstall** or the FramePier Start Menu s
 
 ## Build from source
 
-From PowerShell on Windows:
+For the v0.2.3 build, first provide the exact verified Windows dependencies in the following local locations:
+
+- `.tools\ytdlp-openssl3\yt-dlp.exe` — FramePier's own build of yt-dlp 2026.08.19 with Python 3.13.16 and OpenSSL 3.5.9. The build checks its pinned SHA-256. See `third-party/ytdlp-openssl3/` and the corresponding-source archive on the v0.2.3 release.
+- `.tools\ffmpeg-shared\` — verified `ffmpeg.exe`, `ffprobe.exe`, and nine DLLs from the shared LGPL FFmpeg/LAME build. The build checks each file's pinned SHA-256. See `third-party/ffmpeg-shared/` and the FFmpeg/LAME corresponding-source archive on the v0.2.3 release.
+
+**The build script does not download these two custom binary builds.** Obtain or rebuild them from the documented source/build materials and verify the expected hashes before running it. A byte-for-byte reproducible toolchain has not been independently established. You may alternatively supply them through `-YtDlpPath` and `-FFmpegSharedDir`.
+
+From PowerShell on Windows, with Inno Setup 6 installed:
 
 ```powershell
 .\scripts\build-icons.ps1 -Source .\assets\framepier-mark.png
 .\scripts\build.ps1
 ```
 
-The build script obtains the current stable Go Windows archive from `go.dev`, validates its official checksum, runs Go tests, builds a static helper, downloads and verifies the two media tools, packages the extension, and compiles the Inno Setup installer. Inno Setup 6 must be installed (`winget install --id JRSoftware.InnoSetup -e`). Build downloads and artifacts live under ignored `.tools` and `dist` directories.
+The build script uses an installed Go SDK or obtains and checksum-verifies the official stable Windows SDK from `go.dev`, runs Go tests, builds the Windows helper, copies and checksum-verifies the supplied yt-dlp and shared FFmpeg binaries, downloads and checksum-verifies bundled Deno 2.9.7, packages the extension, and compiles the Inno Setup installer. Inno Setup 6 must be installed (`winget install --id JRSoftware.InnoSetup -e`). Build downloads and artifacts live under ignored `.tools` and `dist` directories.
 
 Run all local checks with:
 
