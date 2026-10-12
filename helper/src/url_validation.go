@@ -14,12 +14,14 @@ const (
 	sourceTwitchClip  mediaSource = "twitch_clip"
 	sourceTwitchVOD   mediaSource = "twitch_vod"
 	sourceDailymotion mediaSource = "dailymotion"
+	sourceGeneric     mediaSource = "generic"
 )
 
 type mediaTarget struct {
 	CanonicalURL string
 	ID           string
 	Source       mediaSource
+	Extractor    string // validated extractor for bounded additional sites
 }
 
 var (
@@ -30,6 +32,9 @@ var (
 	// slug that older share links append after "_" is validated and discarded.
 	dailymotionIDPattern   = regexp.MustCompile(`^x[0-9a-z]{4,10}$`)
 	dailymotionSlugPattern = regexp.MustCompile(`^[A-Za-z0-9-]{1,200}$`)
+	vimeoVideoPattern      = regexp.MustCompile(`^/[0-9]{1,20}$`)
+	redditVideoPattern     = regexp.MustCompile(`^/r/[A-Za-z0-9_]{1,21}/comments/[A-Za-z0-9]{3,12}/[A-Za-z0-9_-]{1,200}/?$`)
+	tiktokVideoPattern     = regexp.MustCompile(`^/@[A-Za-z0-9_.]{2,32}/video/[0-9]{6,24}$`)
 )
 
 func validateMediaURL(raw, suppliedID string) (mediaTarget, error) {
@@ -49,8 +54,10 @@ func validateMediaURL(raw, suppliedID string) (mediaTarget, error) {
 		target, err = validateParsedTwitchURL(parsed, host)
 	case "dailymotion.com", "www.dailymotion.com":
 		target, err = validateParsedDailymotionURL(parsed)
+	case "vimeo.com", "www.vimeo.com", "reddit.com", "www.reddit.com", "tiktok.com", "www.tiktok.com":
+		target, err = validateSupportedGenericURL(parsed, host)
 	default:
-		err = errors.New("Only official YouTube, Twitch and Dailymotion domains are supported.")
+		err = errors.New("Only approved YouTube, Twitch, Dailymotion, Vimeo, Reddit and TikTok video URLs are supported.")
 	}
 	if err != nil {
 		return mediaTarget{}, err
@@ -127,6 +134,35 @@ func validateParsedDailymotionURL(parsed *url.URL) (mediaTarget, error) {
 	return mediaTarget{}, errors.New("This Dailymotion page is not a supported public video.")
 }
 
+// This is a constrained set of additional sites, not arbitrary URL passthrough.
+// The named extractors are not network isolation; cross-host fetches and DNS
+// remain subject to independent security review before release.
+func validateSupportedGenericURL(parsed *url.URL, host string) (mediaTarget, error) {
+	if parsed.RawQuery != "" || parsed.Fragment != "" || parsed.Opaque != "" || parsed.ForceQuery ||
+		parsed.RawPath != "" || parsed.EscapedPath() != parsed.Path {
+		return mediaTarget{}, errors.New("Use a direct public video URL without extra parameters.")
+	}
+	var extractor string
+	switch host {
+	case "vimeo.com", "www.vimeo.com":
+		if vimeoVideoPattern.MatchString(parsed.Path) {
+			extractor = "Vimeo"
+		}
+	case "reddit.com", "www.reddit.com":
+		if redditVideoPattern.MatchString(parsed.Path) {
+			extractor = "Reddit"
+		}
+	case "tiktok.com", "www.tiktok.com":
+		if tiktokVideoPattern.MatchString(parsed.Path) {
+			extractor = "TikTok"
+		}
+	}
+	if extractor == "" {
+		return mediaTarget{}, errors.New("Open a single public video page, not a feed or profile.")
+	}
+	return mediaTarget{CanonicalURL: parsed.String(), Source: sourceGeneric, Extractor: extractor}, nil
+}
+
 func pathParts(value string) []string {
 	trimmed := strings.Trim(value, "/")
 	if trimmed == "" {
@@ -154,6 +190,8 @@ func sourceLabel(source mediaSource) string {
 		return "Twitch VOD"
 	case sourceDailymotion:
 		return "Dailymotion"
+	case sourceGeneric:
+		return "Supported site"
 	default:
 		return "YouTube"
 	}
