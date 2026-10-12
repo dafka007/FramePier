@@ -145,11 +145,17 @@ func validateSupportedGenericURL(parsed *url.URL, host string) (mediaTarget, err
 	var extractor string
 	switch host {
 	case "vimeo.com", "www.vimeo.com":
-		if vimeoVideoPattern.MatchString(parsed.Path) { extractor = "Vimeo" }
+		if vimeoVideoPattern.MatchString(parsed.Path) {
+			extractor = "Vimeo"
+		}
 	case "reddit.com", "www.reddit.com":
-		if redditVideoPattern.MatchString(parsed.Path) { extractor = "Reddit" }
+		if redditVideoPattern.MatchString(parsed.Path) {
+			extractor = "Reddit"
+		}
 	case "tiktok.com", "www.tiktok.com":
-		if tiktokVideoPattern.MatchString(parsed.Path) { extractor = "TikTok" }
+		if tiktokVideoPattern.MatchString(parsed.Path) {
+			extractor = "TikTok"
+		}
 	}
 	if extractor == "" {
 		return mediaTarget{}, errors.New("Open a single public video page, not a feed or profile.")
